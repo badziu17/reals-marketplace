@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&amp;family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:#EFE7DA;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:#dfcfba;border-radius:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  @keyframes rl-fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes rl-slide{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+  @keyframes rl-pop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes rl-typ{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" id="reals-root" style="font-family:'Hanken Grotesk',system-ui,sans-serif;color:#33271D;min-height:100vh;background:#FBF6EE;display:flex;flex-direction:column;align-items:center;">
+
+<div style="{{ shellStyle }}">
+
+  <!-- ===================== CHROME ===================== -->
+  <header style="position:sticky;top:0;z-index:40;background:rgba(251,246,238,.88);backdrop-filter:blur(12px);border-bottom:1px solid #ede1d2;">
+    <div style="display:flex;align-items:center;gap:18px;padding:13px 22px;">
+      <div onClick="{{ goHome }}" style="display:flex;align-items:baseline;gap:9px;cursor:pointer;flex-shrink:0;">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:#C8553D;letter-spacing:-0.6px;">REALS</span>
+        <span style="font-family:'Space Mono',monospace;font-size:9px;color:#a8957f;border:1px solid #e3d4c2;border-radius:999px;padding:2px 8px;letter-spacing:.5px;">TRÓJMIASTO</span>
+      </div>
+
+      <nav style="{{ navStyle }}">
+        <button onClick="{{ goHome }}" style="{{ navHomeStyle }}">Odkrywaj</button>
+        <button onClick="{{ goSearch }}" style="{{ navSearchStyle }}">Szukaj</button>
+        <button onClick="{{ goSell }}" style="{{ navSellStyle }}">Sprzedaj</button>
+        <button onClick="{{ goBiz }}" style="{{ navBizStyle }}">Dla biznesu</button>
+        <button onClick="{{ goMessages }}" style="{{ navMsgStyle }}">Wiadomości</button>
+      </nav>
+
+      <div style="flex:1;"></div>
+
+      <div style="display:flex;background:#f3ece2;border-radius:999px;padding:3px;gap:2px;">
+        <button onClick="{{ setDesktop }}" title="Desktop" style="{{ deskBtnStyle }}">Desktop</button>
+        <button onClick="{{ setMobile }}" title="Telefon" style="{{ mobBtnStyle }}">Telefon</button>
+      </div>
+
+      <button onClick="{{ goMessages }}" title="Wiadomości" style="position:relative;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:#fff;border:1px solid #ede1d2;border-radius:999px;cursor:pointer;color:#5c4d3f;" style-hover="border-color:#C8553D;color:#C8553D;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg><sc-if value="{{ msgUnreadBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#C8553D;color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;border:2px solid #FBF6EE;">{{ msgUnreadText }}</span></sc-if></button>
+      <button onClick="{{ goSearch }}" style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #ede1d2;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;color:#5c4d3f;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.42 3.42 5 5.5 5c1.74 0 2.84 1.05 3.5 2 .66-.95 1.76-2 3.5-2C18.58 5 20 6.42 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+        Zapisane {{ favCountText }}
+      </button>
+    </div>
+  </header>
+  <!-- ===================== LANDING ===================== -->
+  <sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+  <main>
+    <!-- hero -->
+    <section style="{{ heroPadStyle }}">
+      <div style="{{ heroGridStyle }}">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:7px;background:#f3ddd4;border-radius:999px;padding:6px 13px;margin-bottom:22px;">
+            <span style="width:7px;height:7px;border-radius:999px;background:#C8553D;"></span>
+            <span style="font-size:12.5px;font-weight:700;color:#A8432E;">Premiera w Trójmieście</span>
+          </div>
+          <h1 style="{{ heroTitleStyle }}">Znajdź swoje wymarzone&nbsp;<font color="#c8553d">miejsce</font>.</h1>
+          <p style="font-size:17px;line-height:1.55;color:#7a6c5d;max-width:440px;margin:0 0 30px;">Jedno mieszkanie = jedno ogłoszenie. Każda oferta uczciwie wyceniona, bez duplikatów i martwych linków. Porównaj, policz koszt i poznaj okolicę — zanim się zakochasz.</p>
+
+          <!-- search entry -->
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #ede1d2;border-radius:999px;padding:8px 8px 8px 20px;box-shadow:0 14px 34px -22px rgba(80,50,40,.5);max-width:480px;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#b09a86" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+            <input value="{{ q }}" onInput="{{ onQ }}" placeholder="Gdzie chcesz zamieszkać? np. Gdańsk Oliwa" style="flex:1;border:none;outline:none;background:transparent;font-family:'Hanken Grotesk',sans-serif;font-size:15px;color:#33271D;min-width:0;">
+            <button onClick="{{ goSearch }}" style="flex-shrink:0;background:#C8553D;border:none;border-radius:999px;padding:12px 22px;font-size:14.5px;font-weight:700;color:#fff;cursor:pointer;" style-hover="background:#A8432E;">Szukaj</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;">
+            
+          <button onClick="{{ goOnboarding }}" style="background:transparent;border:1px dashed #d8c6b2;border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;color:#7a6c5d;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">✨ Powiedz co jest dla ciebie ważne — dobierzemy oferty</button></div>
+        </div>
+
+        <!-- hero stacked cards -->
+        <div style="{{ heroArtStyle }}">
+          <div style="position:relative;width:340px;height:380px;">
+            <div style="position:absolute;top:38px;left:0;width:230px;height:300px;border-radius:24px;background:linear-gradient(135deg,#5E7A60,#3a4f3c);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 14px,transparent 14px 28px);box-shadow:0 30px 60px -30px rgba(80,50,40,.6);transform:rotate(-7deg);"></div>
+            <div style="position:absolute;top:0;right:0;width:250px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 40px 80px -34px rgba(80,50,40,.65);border:1px solid #f0e6da;transform:rotate(4deg);">
+              <div style="height:150px;background:linear-gradient(135deg,#C8553D,#9e3f2c);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 14px,transparent 14px 28px);position:relative;">
+                <span style="position:absolute;top:12px;left:12px;background:#fff;color:#3F5142;font-size:11px;font-weight:700;border-radius:999px;padding:5px 11px;display:inline-flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3F5142" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>Uczciwa cena</span>
+              </div>
+              <div style="padding:14px 16px 16px;">
+                <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;color:#33271D;">1 290 000 zł</div>
+                <div style="font-size:13px;font-weight:700;color:#5c4d3f;margin-top:3px;">2 pok · 49 m² · Sopot</div>
+                <div style="display:flex;gap:6px;margin-top:11px;"><span style="font-size:11px;font-weight:600;color:#3F5142;background:#e7ede4;border-radius:999px;padding:4px 10px;">🚆 22 min</span><span style="font-size:11px;font-weight:600;color:#7a6c5d;background:#f3ece2;border-radius:999px;padding:4px 10px;">2 dni temu</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- trust strip -->
+    <section style="background:#3F5142;padding:0;">
+      <div style="{{ trustInnerStyle }}">
+        <sc-for list="{{ trustStats }}" as="t" hint-placeholder-count="3">
+          <div style="flex:1;min-width:160px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:700;color:#fff;line-height:1;">{{ t.big }}</div>
+            <div style="font-size:13.5px;color:#cdd6c9;margin-top:7px;line-height:1.4;">{{ t.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- pillars -->
+    <section style="{{ pillarsPadStyle }}">
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:700;color:#33271D;letter-spacing:-0.6px;margin:0 0 6px;">Dlaczego REALS</h2>
+      <p style="font-size:15px;color:#7a6c5d;margin:0 0 28px;max-width:520px;">Trzy rzeczy, które sprawią, że poczujesz różnicę od pierwszej sekundy.</p>
+      <div style="{{ pillarsGridStyle }}">
+        <sc-for list="{{ pillars }}" as="p" hint-placeholder-count="3">
+          <div style="background:#fff;border:1px solid #f0e6da;border-radius:20px;padding:24px;box-shadow:0 10px 30px -24px rgba(80,50,40,.5);">
+            <div style="width:46px;height:46px;border-radius:14px;background:{{ p.tint }};display:grid;place-items:center;font-size:22px;margin-bottom:16px;">{{ p.icon }}</div>
+            <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:18.5px;font-weight:700;color:#33271D;margin:0 0 7px;">{{ p.title }}</h3>
+            <p style="font-size:14px;line-height:1.5;color:#7a6c5d;margin:0;">{{ p.body }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- featured listings -->
+    <section style="{{ featPadStyle }}">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:700;color:#33271D;letter-spacing:-0.5px;margin:0 0 4px;">Dla Ciebie w Trójmieście</h2>
+          <p style="font-size:14.5px;color:#7a6c5d;margin:0;">Świeże, zweryfikowane oferty z uczciwą wyceną.</p>
+        </div>
+        <button onClick="{{ goSearch }}" style="background:#33271D;border:none;border-radius:999px;padding:11px 20px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0;" style-hover="background:#C8553D;">Zobacz wszystkie →</button>
+      </div>
+      <div style="{{ featGridStyle }}">
+        <sc-for list="{{ featured }}" as="c" hint-placeholder-count="3">
+          <div onClick="{{ c.onClick }}" onMouseEnter="{{ c.onEnter }}" onMouseLeave="{{ c.onLeave }}" style="{{ c.wrapStyle }}" style-hover="transform:translateY(-4px);box-shadow:0 22px 44px -26px rgba(80,50,40,.5);">
+            <div style="height:172px;position:relative;background:{{ c.bg }};">
+              <button onClick="{{ c.onFav }}" style="position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:999px;border:none;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ c.favFill }}" stroke="{{ c.favStroke }}" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.42 3.42 5 5.5 5c1.74 0 2.84 1.05 3.5 2 .66-.95 1.76-2 3.5-2C18.58 5 20 6.42 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+              </button>
+              <sc-if value="{{ c.hasV }}" hint-placeholder-val="{{ true }}">
+                <span style="position:absolute;top:12px;left:12px;background:#fff;color:{{ c.vColor }};font-size:11px;font-weight:700;border-radius:999px;padding:5px 11px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 4px 10px -6px rgba(0,0,0,.25);">{{ c.vDot }} {{ c.vLabel }}</span>
+              </sc-if>
+            </div>
+            <div style="padding:15px 17px 17px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:21px;font-weight:700;color:#33271D;">{{ c.priceText }}</span>
+                <span style="font-size:12px;color:#a8957f;font-weight:600;">{{ c.ppmText }}</span>
+              </div>
+              <div style="font-size:14px;font-weight:700;color:#5c4d3f;margin-top:4px;">{{ c.meta }}</div>
+              <div style="font-size:12.5px;color:#a8957f;margin-top:1px;">{{ c.dist }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;">
+                <span style="font-size:11.5px;font-weight:600;color:#3F5142;background:#e7ede4;border-radius:999px;padding:5px 11px;">🚆 {{ c.commute }} min</span>
+                <span style="font-size:11.5px;font-weight:600;color:#7a6c5d;background:#f3ece2;border-radius:999px;padding:5px 11px;">{{ c.freshText }}</span>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- both sides CTA -->
+    <section style="{{ ctaPadStyle }}">
+      <div style="{{ ctaGridStyle }}">
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:24px;padding:32px;box-shadow:0 18px 44px -30px rgba(80,50,40,.5);">
+          <div style="font-size:13px;font-weight:700;color:#C8553D;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">Kupujesz / wynajmujesz</div>
+          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:700;color:#33271D;margin:0 0 10px;letter-spacing:-0.4px;">Decyduj z pełnią wiedzy</h3>
+          <p style="font-size:14.5px;line-height:1.55;color:#7a6c5d;margin:0 0 20px;">Mapa zsynchronizowana z listą, izochrony dojazdu, koszt całkowity i wycena AVM przy każdej ofercie.</p>
+          <button onClick="{{ goSearch }}" style="background:#C8553D;border:none;border-radius:999px;padding:12px 22px;font-size:14.5px;font-weight:700;color:#fff;cursor:pointer;" style-hover="background:#A8432E;">Przeglądaj oferty →</button>
+        </div>
+        <div style="background:#3F5142;border-radius:24px;padding:32px;box-shadow:0 18px 44px -30px rgba(40,50,40,.6);">
+          <div style="font-size:13px;font-weight:700;color:#bcd0b8;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">Sprzedajesz / wynajmujesz</div>
+          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:700;color:#fff;margin:0 0 10px;letter-spacing:-0.4px;">Lepsze ogłoszenie w kilka minut</h3>
+          <p style="font-size:14.5px;line-height:1.55;color:#cdd6c9;margin:0 0 20px;">Wskaźnik jakości prowadzi Cię za rękę, AVM podpowiada cenę, a podgląd pokazuje, co zobaczy kupujący. Za darmo.</p>
+          <button onClick="{{ goSell }}" style="background:#fff;border:none;border-radius:999px;padding:12px 22px;font-size:14.5px;font-weight:700;color:#3F5142;cursor:pointer;" style-hover="background:#e7ede4;">Dodaj ogłoszenie →</button>
+        </div>
+      </div>
+    </section>
+
+    <footer style="padding:28px 22px 40px;border-top:1px solid #ede1d2;margin-top:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;max-width:1180px;margin:0 auto;">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;color:#C8553D;">REALS</span>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;color:#a8957f;">prototyp · Trójmiasto → Pomorskie → Polska</span>
+      </div>
+    </footer>
+  </main>
+  </sc-if>
+
+  <!-- ===================== ONBOARDING ===================== -->
+  <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">
+  <main style="max-width:620px;margin:0 auto;padding:38px 22px 60px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:#C8553D;text-transform:uppercase;">Dostrój gust · krok {{ onbStepText }}</span>
+      <button onClick="{{ goSearch }}" style="background:transparent;border:none;font-size:13px;font-weight:600;color:#a8957f;cursor:pointer;">Pomiń →</button>
+    </div>
+    <div style="height:6px;border-radius:999px;background:#f0e6da;overflow:hidden;margin-bottom:26px;">
+      <div style="height:100%;background:#C8553D;border-radius:999px;width:{{ onbPct }}%;transition:width .4s cubic-bezier(.22,1,.36,1);"></div>
+    </div>
+
+    <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:700;color:#33271D;letter-spacing:-0.5px;margin:0 0 6px;">{{ onbTitle }}</h2>
+    <p style="font-size:15px;color:#7a6c5d;margin:0 0 24px;">{{ onbSub }}</p>
+
+    <div style="min-height:200px;">
+      <!-- areas -->
+      <sc-if value="{{ onbIsAreas }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-wrap:wrap;gap:9px;">
+          <sc-for list="{{ areaChips }}" as="a" hint-placeholder-count="12">
+            <button onClick="{{ a.onClick }}" style="{{ a.style }}">{{ a.name }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <!-- budget -->
+      <sc-if value="{{ onbIsBudget }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:20px;padding:28px;">
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:38px;font-weight:700;color:#C8553D;text-align:center;">{{ onbBudgetText }}</div>
+          <input type="range" min="300000" max="3000000" step="50000" value="{{ onbBudget }}" onInput="{{ onBudget }}" style="width:100%;margin-top:22px;accent-color:#C8553D;">
+          <div style="display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:11px;color:#a8957f;margin-top:8px;"><span>300 tys.</span><span>3 mln</span></div>
+        </div>
+      </sc-if>
+      <!-- rooms -->
+      <sc-if value="{{ onbIsRooms }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <sc-for list="{{ roomChips }}" as="r" hint-placeholder-count="5">
+            <button onClick="{{ r.onClick }}" style="{{ r.style }}">{{ r.label }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <!-- musts -->
+      <sc-if value="{{ onbIsMusts }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-wrap:wrap;gap:9px;">
+          <sc-for list="{{ mustChips }}" as="m" hint-placeholder-count="6">
+            <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.icon }} {{ m.name }}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:34px;">
+      <sc-if value="{{ onbCanBack }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onbBack }}" style="background:#fff;border:1px solid #ede1d2;border-radius:999px;padding:13px 24px;font-size:14.5px;font-weight:700;color:#5c4d3f;cursor:pointer;">Wstecz</button>
+      </sc-if>
+      <div style="flex:1;"></div>
+      <button onClick="{{ onbNext }}" style="background:#C8553D;border:none;border-radius:999px;padding:13px 30px;font-size:14.5px;font-weight:700;color:#fff;cursor:pointer;" style-hover="background:#A8432E;">{{ onbNextLabel }}</button>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ===================== SEARCH ===================== -->
+  <sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+  <main style="width:100%;">
+    <!-- filter bar -->
+    <div style="position:sticky;top:57px;z-index:30;background:#FBF6EE;border-bottom:1px solid #ede1d2;">
+      <div style="display:flex;align-items:center;gap:9px;padding:13px 22px 11px;flex-wrap:wrap;">
+        <div style="display:flex;background:#f3ece2;border-radius:999px;padding:3px;gap:2px;">
+          <button onClick="{{ setKup }}" style="{{ kupBtnStyle }}">Kup</button>
+          <button onClick="{{ setWynajem }}" style="{{ wynBtnStyle }}">Wynajem</button>
+        </div>
+        <div style="position:relative;flex:1;min-width:200px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b09a86" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+          <input value="{{ q }}" onInput="{{ onQ }}" placeholder="Miasto, dzielnica…" style="width:100%;padding:10px 14px 10px 40px;border-radius:999px;border:1px solid #ede1d2;background:#fff;font-family:'Hanken Grotesk',sans-serif;font-size:14px;color:#33271D;outline:none;">
+        </div>
+        <!-- price -->
+        <div style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #ede1d2;border-radius:999px;padding:8px 15px;">
+          <span style="font-size:12.5px;font-weight:600;color:#a8957f;">do</span>
+          <input type="range" min="0" max="{{ priceRangeMax }}" step="{{ priceStep }}" value="{{ priceVal }}" onInput="{{ onPrice }}" style="width:110px;accent-color:#C8553D;">
+          <span style="font-family:'Space Mono',monospace;font-size:12.5px;font-weight:700;min-width:76px;color:#33271D;">{{ priceLabel }}</span>
+        </div>
+        <!-- rooms -->
+        <div style="display:flex;gap:5px;">
+          <sc-for list="{{ roomFilterChips }}" as="r" hint-placeholder-count="4">
+            <button onClick="{{ r.onClick }}" style="{{ r.style }}">{{ r.label }}</button>
+          </sc-for>
+        </div>
+        <button onClick="{{ toggleMore }}" style="{{ moreBtnStyle }}">Więcej {{ moreCountText }}</button>
+
+        <div style="flex:1;"></div>
+        <span style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#C8553D;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>{{ countText }}
+        </span>
+        <select value="{{ sort }}" onChange="{{ onSort }}" style="padding:8px 11px;border-radius:999px;border:1px solid #ede1d2;background:#fff;font-family:'Hanken Grotesk',sans-serif;font-size:13px;color:#5c4d3f;cursor:pointer;">
+          <option value="foryou">Dla Ciebie</option>
+          <option value="price">Cena rosnąco</option>
+          <option value="ppm2">Cena/m²</option>
+          <option value="fresh">Najnowsze</option>
+        </select>
+      </div>
+
+      <!-- more panel -->
+      <sc-if value="{{ showMore }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:0 22px 13px;display:flex;gap:9px;flex-wrap:wrap;align-items:center;">
+          <div style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #ede1d2;border-radius:999px;padding:8px 15px;">
+            <span style="font-size:12.5px;font-weight:600;color:#a8957f;">metraż min</span>
+            <input type="range" min="0" max="120" step="5" value="{{ areaMin }}" onInput="{{ onArea }}" style="width:100px;accent-color:#C8553D;">
+            <span style="font-family:'Space Mono',monospace;font-size:12.5px;font-weight:700;min-width:44px;">{{ areaLabel }}</span>
+          </div>
+          <button onClick="{{ setMktWtorny }}" style="{{ wtornyStyle }}">Wtórny</button>
+          <button onClick="{{ setMktPierwotny }}" style="{{ pierwotnyStyle }}">Pierwotny</button>
+          <sc-for list="{{ amenChips }}" as="a" hint-placeholder-count="4">
+            <button onClick="{{ a.onClick }}" style="{{ a.style }}">{{ a.name }}</button>
+          </sc-for>
+          <button onClick="{{ toggleFair }}" style="{{ fairStyle }}">✓ tylko uczciwa cena</button>
+        </div>
+      </sc-if>
+
+      <!-- url sync bar -->
+      <div style="display:flex;align-items:center;gap:9px;padding:8px 22px;background:#F4EADD;border-top:1px solid #ede1d2;">
+        <span style="font-size:11px;color:#a8957f;font-weight:700;flex-shrink:0;">Link do wyszukiwania:</span>
+        <code style="flex:1;font-family:'Space Mono',monospace;font-size:11.5px;color:#7a6c5d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ urlState }}</code>
+        <button onClick="{{ copyUrl }}" style="display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:{{ copyColor }};border:none;background:transparent;cursor:pointer;flex-shrink:0;">{{ copyLabel }}</button>
+        <button onClick="{{ saveSearch }}" style="display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:#C8553D;border:1px solid #e3c9bd;background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;flex-shrink:0;">+ Zapisz alert</button>
+      </div>
+    </div>
+
+    <!-- split -->
+    <div style="{{ splitStyle }}">
+      <!-- list -->
+      <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ listColStyle }}">
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:70px 20px;color:#a8957f;">
+            <div style="font-size:34px;">🏚️</div>
+            <p style="font-weight:700;margin:12px 0 4px;color:#7a6c5d;">Brak ofert dla tych filtrów.</p>
+            <p style="font-size:13px;margin:0;">Filtry zostają zapisane — niczego nie tracisz.</p>
+          </div>
+        </sc-if>
+        <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+          <div onClick="{{ c.onClick }}" onMouseEnter="{{ c.onEnter }}" onMouseLeave="{{ c.onLeave }}" style="{{ c.rowStyle }}" style-hover="border-color:#C8553D;box-shadow:0 16px 36px -22px rgba(80,50,40,.45);">
+            <div style="width:140px;flex-shrink:0;position:relative;background:{{ c.bg }};">
+              <button onClick="{{ c.onFav }}" style="position:absolute;top:9px;right:9px;width:30px;height:30px;border-radius:999px;border:none;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="{{ c.favFill }}" stroke="{{ c.favStroke }}" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.42 3.42 5 5.5 5c1.74 0 2.84 1.05 3.5 2 .66-.95 1.76-2 3.5-2C18.58 5 20 6.42 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+              </button>
+              <span style="position:absolute;left:9px;bottom:9px;font-family:'Space Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.8);">{{ c.year }}</span>
+            </div>
+            <div style="padding:12px 15px;flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+                <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;color:#33271D;">{{ c.priceText }}</span>
+                <span style="font-size:11.5px;color:#a8957f;font-weight:600;flex-shrink:0;">{{ c.ppmText }}</span>
+              </div>
+              <div style="font-size:13.5px;font-weight:700;color:#5c4d3f;margin-top:2px;">{{ c.meta }}</div>
+              <div style="font-size:12.5px;color:#a8957f;margin-top:1px;">{{ c.dist }} · {{ c.market }}</div>
+              <sc-if value="{{ c.hasV }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:{{ c.vColor }};margin-top:8px;white-space:nowrap;">{{ c.vDot }} {{ c.vLabel }}</div>
+                <div style="position:relative;height:6px;border-radius:999px;background:#f3ece2;margin-top:5px;">
+                  <div style="position:absolute;top:0;bottom:0;border-radius:999px;background:#e7ede4;left:{{ c.avmLeft }}%;width:{{ c.avmWidth }}%;"></div>
+                  <div style="position:absolute;top:-2px;width:3px;height:10px;border-radius:3px;background:{{ c.vColor }};left:calc({{ c.avmMark }}% - 1px);"></div>
+                </div>
+              </sc-if>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px;">
+                <span style="font-size:11px;color:#a8957f;">🚆 {{ c.commute }} min · {{ c.freshText }}</span>
+                <button onClick="{{ c.onCmp }}" style="{{ c.cmpStyle }}">{{ c.cmpLabel }}</button>
+              </div>
+              <sc-if value="{{ c.hasSources }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#C8553D;font-weight:700;margin-top:8px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C8553D" stroke-width="2"><polygon points="12 2 22 8.5 12 15 2 8.5"></polygon><polyline points="2 15.5 12 22 22 15.5"></polyline></svg>{{ c.sourcesText }}
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- map -->
+      <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ mapColStyle }}">
+        <svg ref="{{ mapRef }}" viewBox="0 0 400 600" onPointerDown="{{ onMapDown }}" onPointerMove="{{ onMapMove }}" onPointerUp="{{ onMapUp }}" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;cursor:{{ mapCursor }};background:#E7EFE9;">
+          <defs>
+            <linearGradient id="rl-sea" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#bcd8d4"></stop><stop offset="100%" stop-color="#9cc4be"></stop></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="400" height="600" fill="#EBE6DA"></rect>
+          <path d="M400 0 L255 0 C250 90 250 150 270 230 C285 300 250 360 285 430 C310 500 300 560 330 600 L400 600 Z" fill="url(#rl-sea)"></path>
+          <path d="M255 0 C250 90 250 150 270 230 C285 300 250 360 285 430 C310 500 300 560 330 600" fill="none" stroke="#7fb0aa" stroke-width="1.4" stroke-dasharray="2 4" opacity=".7"></path>
+          <path d="M150 50 L180 120 L210 250 L205 400 L210 470 L185 560" fill="none" stroke="#d8c6b2" stroke-width="3" opacity=".85"></path>
+          <sc-if value="{{ iso }}" hint-placeholder-val="{{ false }}">
+            <ellipse cx="205" cy="430" rx="150" ry="120" fill="#C8553D" opacity=".1"></ellipse>
+          </sc-if>
+          <text x="120" y="40" font-family="'Bricolage Grotesque',sans-serif" font-size="15" fill="#b9aa8a" letter-spacing="3" font-weight="700">GDYNIA</text>
+          <text x="150" y="248" font-family="'Bricolage Grotesque',sans-serif" font-size="15" fill="#b9aa8a" letter-spacing="3" font-weight="700">SOPOT</text>
+          <text x="120" y="430" font-family="'Bricolage Grotesque',sans-serif" font-size="15" fill="#b9aa8a" letter-spacing="3" font-weight="700">GDAŃSK</text>
+          <sc-if value="{{ hasRect }}" hint-placeholder-val="{{ false }}">
+            <rect x="{{ rectX }}" y="{{ rectY }}" width="{{ rectW }}" height="{{ rectH }}" fill="#C8553D" fill-opacity=".1" stroke="#C8553D" stroke-width="1.4" stroke-dasharray="4 3" rx="6"></rect>
+          </sc-if>
+          <sc-for list="{{ pins }}" as="p" hint-placeholder-count="8">
+            <g transform="translate({{ p.cx }} {{ p.cy }})" onClick="{{ p.onClick }}" onMouseEnter="{{ p.onEnter }}" onMouseLeave="{{ p.onLeave }}" style="cursor:pointer;">
+              <circle r="{{ p.r }}" fill="#fff" stroke="{{ p.color }}" stroke-width="{{ p.sw }}"></circle>
+              <text text-anchor="middle" y="3.4" font-family="'Space Mono',monospace" font-size="{{ p.fs }}" font-weight="700" fill="{{ p.color }}">{{ p.label }}</text>
+              <sc-if value="{{ p.on }}" hint-placeholder-val="{{ false }}">
+                <text text-anchor="middle" y="-22" font-family="'Hanken Grotesk',sans-serif" font-size="9.5" font-weight="700" fill="#33271D">{{ p.name }}</text>
+              </sc-if>
+            </g>
+          </sc-for>
+        </svg>
+        <!-- map controls -->
+        <div style="position:absolute;top:14px;left:14px;display:flex;flex-direction:column;gap:8px;">
+          <button onClick="{{ toggleDraw }}" style="{{ drawBtnStyle }}">▱ {{ drawLabel }}</button>
+          <button onClick="{{ toggleIso }}" style="{{ isoBtnStyle }}">🚆 ≤25 min do centrum</button>
+          <sc-if value="{{ hasRect }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ clearRect }}" style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid #ede1d2;background:rgba(255,255,255,.95);color:#C8553D;font-weight:700;font-size:12.5px;cursor:pointer;">✕ Wyczyść obszar</button>
+          </sc-if>
+        </div>
+        <!-- legend -->
+        <div style="position:absolute;bottom:14px;right:14px;background:rgba(255,255,255,.95);border-radius:14px;padding:10px 13px;border:1px solid #f0e6da;box-shadow:0 6px 18px -10px rgba(80,50,40,.4);">
+          <div style="font-size:10.5px;font-weight:700;color:#a8957f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Wycena REALS</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px;font-size:11.5px;color:#5c4d3f;"><span style="width:9px;height:9px;border-radius:999px;background:#2E7D4F;"></span>poniżej rynku</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11.5px;color:#5c4d3f;"><span style="width:9px;height:9px;border-radius:999px;background:#3F5142;"></span>uczciwa cena</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11.5px;color:#5c4d3f;"><span style="width:9px;height:9px;border-radius:999px;background:#C8553D;"></span>powyżej</div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- mobile map toggle -->
+      <sc-if value="{{ showMobToggle }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ toggleMobMap }}" style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:35;background:#33271D;color:#fff;border:none;border-radius:999px;padding:13px 24px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 14px 30px -12px rgba(0,0,0,.5);">{{ mobMapLabel }}</button>
+      </sc-if>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ===================== SELL ===================== -->
+  <sc-if value="{{ isSell }}" hint-placeholder-val="{{ false }}">
+  <main style="{{ sellPadStyle }}">
+    <div style="{{ sellGridStyle }}">
+      <!-- form -->
+      <div>
+        <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:700;color:#33271D;letter-spacing:-0.6px;margin:0 0 6px;">Dodaj ogłoszenie</h2>
+        <p style="font-size:15px;color:#7a6c5d;margin:0 0 24px;">Prowadzimy Cię krok po kroku. Im wyższy wskaźnik jakości, tym więcej zainteresowanych kupujących.</p>
+
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:20px;padding:22px;box-shadow:0 12px 32px -26px rgba(80,50,40,.5);">
+          <sc-for list="{{ sellFields }}" as="f" hint-placeholder-count="5">
+            <div onClick="{{ f.onClick }}" style="{{ f.rowStyle }}">
+              <div style="width:30px;height:30px;border-radius:999px;flex-shrink:0;display:grid;place-items:center;background:{{ f.dotBg }};color:{{ f.dotColor }};font-size:14px;font-weight:800;">{{ f.dotIcon }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14.5px;font-weight:700;color:#33271D;">{{ f.title }}</div>
+                <div style="font-size:12.5px;color:#a8957f;">{{ f.hint }}</div>
+              </div>
+              <span style="font-size:12.5px;font-weight:700;color:{{ f.tagColor }};flex-shrink:0;">{{ f.tag }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:18px;padding-top:18px;border-top:1px solid #f3ece2;">
+            <div style="flex:1;">
+              <div style="font-size:12.5px;font-weight:700;color:#a8957f;margin-bottom:5px;">Sugerowana cena (AVM)</div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:23px;font-weight:700;color:#3F5142;">690 000 – 730 000 zł</div>
+            </div>
+            <button onClick="{{ publish }}" style="background:#C8553D;border:none;border-radius:999px;padding:13px 26px;font-size:14.5px;font-weight:700;color:#fff;cursor:pointer;" style-hover="background:#A8432E;">Opublikuj za darmo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- quality + preview -->
+      <div>
+        <div style="background:#3F5142;border-radius:20px;padding:24px;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:13px;font-weight:700;color:#bcd0b8;text-transform:uppercase;letter-spacing:.5px;">Wskaźnik jakości</span>
+            <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:700;color:#fff;">{{ sellScore }}<span style="font-size:16px;color:#9fb39b;">/100</span></span>
+          </div>
+          <div style="height:8px;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:12px;">
+            <div style="height:100%;background:linear-gradient(90deg,#e8b04a,#7fc98a);border-radius:999px;width:{{ sellScore }}%;transition:width .4s ease;"></div>
+          </div>
+          <p style="font-size:12.5px;color:#cdd6c9;margin:12px 0 0;line-height:1.5;">{{ sellTip }}</p>
+        </div>
+
+        <div style="font-size:12.5px;font-weight:700;color:#a8957f;margin-bottom:8px;">Podgląd — tak zobaczy kupujący</div>
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:20px;overflow:hidden;box-shadow:0 14px 34px -26px rgba(80,50,40,.5);max-width:300px;">
+          <div style="height:150px;background:linear-gradient(135deg,#C8553D,#9e3f2c);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 14px,transparent 14px 28px);position:relative;">
+            <span style="position:absolute;top:11px;left:11px;background:#fff;color:#3F5142;font-size:10.5px;font-weight:700;border-radius:999px;padding:4px 10px;">✓ Uczciwa cena</span>
+          </div>
+          <div style="padding:14px 16px 16px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;color:#33271D;">710 000 zł</div>
+            <div style="font-size:13px;font-weight:700;color:#5c4d3f;margin-top:3px;">3 pok · 58 m² · Wrzeszcz</div>
+            <div style="display:flex;gap:6px;margin-top:11px;"><span style="font-size:11px;font-weight:600;color:#3F5142;background:#e7ede4;border-radius:999px;padding:4px 10px;">🚆 12 min</span><span style="font-size:11px;font-weight:600;color:#7a6c5d;background:#f3ece2;border-radius:999px;padding:4px 10px;">nowe</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ===================== BUSINESS ===================== -->
+  <sc-if value="{{ isBiz }}" hint-placeholder-val="{{ false }}">
+  <main style="{{ bizPadStyle }}">
+    <!-- header + tabs -->
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:#C8553D;text-transform:uppercase;">Panel partnera REALS</div>
+        <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:700;color:#33271D;letter-spacing:-0.6px;margin:5px 0 0;">{{ bizTitle }}</h2>
+      </div>
+      <div style="display:flex;background:#f3ece2;border-radius:999px;padding:4px;gap:3px;">
+        <button onClick="{{ setBizAgencja }}" style="{{ bizAgStyle }}">Agencja</button>
+        <button onClick="{{ setBizDeweloper }}" style="{{ bizDevStyle }}">Deweloper</button>
+      </div>
+    </div>
+
+    <!-- identity bar -->
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid #f0e6da;border-radius:18px;padding:15px 20px;margin-bottom:20px;box-shadow:0 10px 30px -24px rgba(80,50,40,.5);">
+      <div style="width:46px;height:46px;border-radius:13px;background:{{ bizLogoBg }};display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;color:#fff;font-size:19px;flex-shrink:0;">{{ bizLogoLetter }}</div>
+      <div style="flex:1;min-width:170px;">
+        <div style="font-size:16px;font-weight:800;color:#33271D;">{{ bizName }}</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:#3F7A52;font-weight:700;margin-top:2px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3F7A52" stroke-width="2.4"><path d="M12 2l2.4 1.7 2.9-.2 1 2.8 2.4 1.6-.6 2.9.9 2.8-2.2 1.9-.3 2.9-2.9.5-1.7 2.4-2.6-1.2-2.6 1.2-1.7-2.4-2.9-.5-.3-2.9-2.2-1.9.9-2.8-.6-2.9 2.4-1.6 1-2.8 2.9.2z"></path><polyline points="9 12 11.5 14.5 16 9.5"></polyline></svg>
+          {{ bizVerified }}
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11.5px;color:#a8957f;font-weight:700;">{{ bizPlanLabel }}</div>
+        <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;color:#33271D;">{{ bizPlanPrice }}</div>
+      </div>
+      <button onClick="{{ manageSub }}" style="background:#fff;border:1px solid #ede1d2;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;color:#5c4d3f;cursor:pointer;flex-shrink:0;" style-hover="border-color:#C8553D;color:#C8553D;">Zarządzaj</button>
+    </div>
+
+    <!-- KPI -->
+    <div style="{{ bizKpiStyle }}">
+      <sc-for list="{{ bizKpis }}" as="k" hint-placeholder-count="4">
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:16px;padding:18px;box-shadow:0 10px 30px -26px rgba(80,50,40,.5);">
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:700;color:#33271D;line-height:1;">{{ k.big }}</div>
+          <div style="font-size:13px;font-weight:700;color:#5c4d3f;margin-top:9px;">{{ k.label }}</div>
+          <div style="font-size:11.5px;color:#a8957f;margin-top:2px;">{{ k.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- AGENCY -->
+    <sc-if value="{{ bizIsAgencja }}" hint-placeholder-val="{{ true }}">
+      <div style="{{ bizSplitStyle }}">
+        <!-- leads CRM -->
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:18px;padding:20px;box-shadow:0 10px 30px -26px rgba(80,50,40,.5);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;color:#33271D;margin:0;">Skrzynka leadów</h3>
+            <span style="font-family:'Space Mono',monospace;font-size:10.5px;color:#a8957f;border:1px solid #ede1d2;border-radius:999px;padding:3px 9px;">CRM-lite</span>
+          </div>
+          <sc-for list="{{ leads }}" as="l" hint-placeholder-count="5">
+            <div onClick="{{ l.onClick }}" style="{{ l.rowStyle }}" style-hover="background:#faf4ea;">
+              <div style="width:34px;height:34px;border-radius:999px;flex-shrink:0;display:grid;place-items:center;background:{{ l.avatarBg }};color:#fff;font-weight:800;font-size:14px;">{{ l.avatar }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:14px;font-weight:700;color:#33271D;">{{ l.name }}</div>
+                <div style="font-size:12px;color:#a8957f;">{{ l.listing }} · {{ l.time }}</div>
+              </div>
+              <span style="{{ l.badgeStyle }}">{{ l.status }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <!-- listings analytics -->
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:18px;padding:20px;box-shadow:0 10px 30px -26px rgba(80,50,40,.5);">
+          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;color:#33271D;margin:0 0 6px;">Twoje ogłoszenia</h3>
+          <sc-for list="{{ agListings }}" as="a" hint-placeholder-count="4">
+            <div style="{{ a.rowStyle }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="min-width:0;">
+                  <div style="font-size:14px;font-weight:700;color:#33271D;">{{ a.dist }}</div>
+                  <div style="font-family:'Space Mono',monospace;font-size:12px;color:#a8957f;">{{ a.price }}</div>
+                </div>
+                <button onClick="{{ a.onPromote }}" style="{{ a.promoteStyle }}">{{ a.promoteLabel }}</button>
+              </div>
+              <div style="display:flex;gap:16px;margin-top:9px;font-size:12px;color:#7a6c5d;">
+                <span>👁 {{ a.views }}</span>
+                <span>♡ {{ a.saves }}</span>
+                <span>✉ {{ a.leads }} leadów</span>
+                <span style="margin-left:auto;font-weight:700;color:{{ a.qColor }};">jakość {{ a.quality }}/100</span>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:flex-start;gap:8px;margin-top:16px;padding:13px 14px;border-radius:14px;background:#e7ede4;border:1px solid #d6e1d2;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3F5142" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><path d="M12 2l8 4v6c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6z"></path></svg>
+            <div style="font-size:12px;color:#3F5142;line-height:1.5;"><b>Anti-fraud aktywny.</b> Każde zdjęcie sprawdzane pod kątem duplikatów i autentyczności (EXIF + reverse-image). 0 wykrytych nadużyć.</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- DEVELOPER -->
+    <sc-if value="{{ bizIsDeweloper }}" hint-placeholder-val="{{ false }}">
+      <div style="{{ devTopStyle }}">
+        <div style="background:#3F5142;border-radius:18px;padding:22px;">
+          <div style="font-size:12.5px;font-weight:700;color:#bcd0b8;text-transform:uppercase;letter-spacing:.5px;">Inwestycja · etap budowy</div>
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;color:#fff;margin:6px 0 14px;">Osiedle Nadmorskie · Gdańsk Oliwa</div>
+          <div style="height:9px;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden;"><div style="height:100%;width:65%;background:linear-gradient(90deg,#e8b04a,#7fc98a);border-radius:999px;"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#cdd6c9;margin-top:8px;"><span>Stan surowy zamknięty</span><span style="font-weight:700;">65% · odbiór Q3 2027</span></div>
+        </div>
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:18px;padding:22px;box-shadow:0 10px 30px -26px rgba(80,50,40,.5);display:flex;flex-direction:column;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#3F7A52;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3F7A52" stroke-width="2.4"><polyline points="20 6 9 17 4 12"></polyline></svg>Cennik zgodny z ustawą o jawności cen
+            </div>
+            <p style="font-size:13px;color:#7a6c5d;line-height:1.5;margin:9px 0 0;">Pełny cennik 120 lokali publikowany automatycznie na stronie inwestycji <b>i raportowany do dane.gov.pl</b>. Aktualizacja: dziś, 08:14.</p>
+          </div>
+          <button onClick="{{ publishPrice }}" style="margin-top:16px;align-self:flex-start;background:#C8553D;border:none;border-radius:999px;padding:11px 20px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;" style-hover="background:#A8432E;">Opublikuj aktualizację cennika</button>
+        </div>
+      </div>
+
+      <!-- matrix -->
+      <div style="background:#fff;border:1px solid #f0e6da;border-radius:18px;padding:22px;margin-top:20px;box-shadow:0 10px 30px -26px rgba(80,50,40,.5);">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;color:#33271D;margin:0;">Matryca dostępności lokali</h3>
+          <div style="display:flex;gap:14px;">
+            <sc-for list="{{ unitCounts }}" as="u" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#5c4d3f;"><span style="width:11px;height:11px;border-radius:4px;background:{{ u.color }};"></span>{{ u.label }} · {{ u.n }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <sc-for list="{{ bizUnits }}" as="row" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="width:48px;flex-shrink:0;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#a8957f;">{{ row.floor }}</span>
+              <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="8">
+                <div style="{{ cell.cellStyle }}">{{ cell.num }}</div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </main>
+  </sc-if>
+
+  <!-- ===================== MESSAGES ===================== -->
+  <sc-if value="{{ isMessages }}" hint-placeholder-val="{{ false }}">
+  <main style="width:100%;">
+    <div style="position:sticky;top:57px;z-index:30;background:#FBF6EE;border-bottom:1px solid #ede1d2;display:flex;align-items:center;gap:11px;padding:11px 22px;flex-wrap:wrap;">
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;color:#33271D;">Wiadomości</span>
+      <span style="font-family:'Space Mono',monospace;font-size:11px;color:#a8957f;">{{ msgConvCountText }}</span>
+      <div style="flex:1;"></div>
+      <span style="font-size:11.5px;font-weight:700;color:#a8957f;">Jesteś jako</span>
+      <div style="display:flex;background:#f3ece2;border-radius:999px;padding:3px;gap:2px;">
+        <button onClick="{{ setMsgBuyer }}" style="{{ msgBuyerStyle }}">Kupujący</button>
+        <button onClick="{{ setMsgSeller }}" style="{{ msgSellerStyle }}">Sprzedający</button>
+      </div>
+      <span style="width:1px;height:22px;background:#e3d4c2;"></span>
+      <span style="font-size:11.5px;font-weight:700;color:#a8957f;">Układ</span>
+      <div style="display:flex;background:#f3ece2;border-radius:999px;padding:3px;gap:2px;">
+        <button onClick="{{ setLayoutA }}" style="{{ msgLayoutAStyle }}">Skrzynka</button>
+        <button onClick="{{ setLayoutB }}" style="{{ msgLayoutBStyle }}">Pokój negocjacji</button>
+      </div>
+    </div>
+
+    <div style="{{ msgShellStyle }}">
+      <!-- conversation list -->
+      <sc-if value="{{ showConvList }}" hint-placeholder-val="{{ true }}">
+      <aside style="{{ convListStyle }}">
+        <sc-for list="{{ convList }}" as="c" hint-placeholder-count="4">
+          <div onClick="{{ c.onClick }}" style="{{ c.rowStyle }}" style-hover="background:#f7f0e6;">
+            <div style="position:relative;flex-shrink:0;">
+              <div style="width:42px;height:42px;border-radius:999px;background:{{ c.avatarBg }};color:#fff;display:grid;place-items:center;font-weight:800;font-size:17px;">{{ c.avatar }}</div>
+              <sc-if value="{{ c.online }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:0;bottom:1px;width:11px;height:11px;border-radius:999px;background:#2E7D4F;border:2px solid #FBF6EE;"></span></sc-if>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:baseline;gap:6px;">
+                <span style="font-size:14px;font-weight:700;color:#33271D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.name }}</span>
+                <span style="font-size:11px;color:#a8957f;margin-left:auto;flex-shrink:0;">{{ c.time }}</span>
+              </div>
+              <div style="font-size:11.5px;color:#a8957f;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.listingMeta }}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                <span style="flex:1;min-width:0;font-size:12.5px;color:#7a6c5d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.preview }}</span>
+                <sc-if value="{{ c.unread }}" hint-placeholder-val="{{ false }}"><span style="flex-shrink:0;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#C8553D;color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;">{{ c.unreadText }}</span></sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </aside>
+      </sc-if>
+
+      <!-- thread -->
+      <sc-if value="{{ showThread }}" hint-placeholder-val="{{ true }}">
+      <section style="{{ threadStyle }}">
+        <sc-if value="{{ msgHasActive }}" hint-placeholder-val="{{ true }}">
+          <!-- header -->
+          <div style="display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:1px solid #ede1d2;background:rgba(251,246,238,.92);backdrop-filter:blur(8px);flex-shrink:0;">
+            <button onClick="{{ backToList }}" style="{{ msgBackStyle }}">←</button>
+            <div style="position:relative;flex-shrink:0;">
+              <div style="width:40px;height:40px;border-radius:999px;background:{{ th.avatarBg }};color:#fff;display:grid;place-items:center;font-weight:800;font-size:16px;">{{ th.avatar }}</div>
+              <sc-if value="{{ th.online }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:0;bottom:0;width:10px;height:10px;border-radius:999px;background:#2E7D4F;border:2px solid #FBF6EE;"></span></sc-if>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:15px;font-weight:700;color:#33271D;">{{ th.name }}</div>
+              <div style="font-size:12px;color:#3F7A52;font-weight:600;">{{ th.statusText }}</div>
+            </div>
+            <div style="position:relative;">
+              <button onClick="{{ toggleConvMenu }}" style="border:none;background:transparent;font-size:20px;color:#a8957f;cursor:pointer;padding:4px 8px;">⋯</button>
+              <sc-if value="{{ showConvMenu }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;right:0;top:36px;z-index:20;background:#fff;border:1px solid #f0e6da;border-radius:12px;box-shadow:0 14px 34px -16px rgba(80,50,40,.5);overflow:hidden;min-width:184px;">
+                  <button onClick="{{ reportConv }}" style="display:block;width:100%;text-align:left;border:none;background:transparent;padding:11px 14px;font-size:13px;font-weight:600;color:#5c4d3f;cursor:pointer;" style-hover="background:#f7f0e6;">⚑ Zgłoś rozmowę</button>
+                  <button onClick="{{ blockConv }}" style="display:block;width:100%;text-align:left;border:none;border-top:1px solid #f3ece2;background:transparent;padding:11px 14px;font-size:13px;font-weight:600;color:#C8553D;cursor:pointer;" style-hover="background:#f7f0e6;">⊘ Zablokuj użytkownika</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <!-- pinned offer -->
+          <sc-if value="{{ pinnedInThread }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 13px;margin:12px 16px 0;background:#fff;border:1px solid #f0e6da;border-radius:14px;box-shadow:0 8px 22px -18px rgba(80,50,40,.5);flex-shrink:0;">
+              <div style="width:54px;height:48px;border-radius:10px;flex-shrink:0;background:{{ pinned.bg }};"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:700;color:#33271D;">{{ pinned.priceText }}</div>
+                <div style="font-size:12px;color:#7a6c5d;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pinned.meta }}</div>
+              </div>
+              <button onClick="{{ pinned.onOpen }}" style="flex-shrink:0;border:1px solid #ede1d2;background:#fff;border-radius:999px;padding:7px 13px;font-size:12px;font-weight:700;color:#5c4d3f;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">Zobacz ofertę</button>
+            </div>
+          </sc-if>
+
+          <!-- messages -->
+          <div ref="{{ msgScrollRef }}" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:9px;">
+            <sc-for list="{{ threadMessages }}" as="m" hint-placeholder-count="4">
+              <div style="{{ m.rowStyle }}">
+                <div style="{{ m.bubbleStyle }}">
+                  <sc-if value="{{ m.isViewing }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <span style="font-size:20px;">📅</span>
+                      <div><div style="font-size:10.5px;font-weight:700;color:#a8957f;text-transform:uppercase;letter-spacing:.4px;">Propozycja oglądania</div><div style="font-size:14px;font-weight:700;color:#33271D;">{{ m.text }}</div></div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ m.isAttach }}" hint-placeholder-val="{{ false }}">
+                    <div style="width:172px;height:108px;border-radius:10px;background:repeating-linear-gradient(135deg,#e7ddcd 0 10px,#efe7da 10px 20px);display:grid;place-items:center;font-family:'Space Mono',monospace;font-size:10px;color:#a8957f;">🖼 {{ m.text }}</div>
+                  </sc-if>
+                  <sc-if value="{{ m.isText }}" hint-placeholder-val="{{ true }}">
+                    <span>{{ m.text }}</span>
+                  </sc-if>
+                  <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:4px;font-size:10.5px;color:{{ m.metaColor }};">{{ m.time }} <span style="color:{{ m.tickColor }};font-weight:700;">{{ m.tick }}</span></div>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ threadTyping }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;justify-content:flex-start;">
+                <div style="background:#fff;border:1px solid #f0e6da;border-radius:16px;border-bottom-left-radius:5px;padding:13px 15px;display:flex;gap:4px;">
+                  <span style="width:7px;height:7px;border-radius:999px;background:#c9b9a5;animation:rl-typ 1s infinite;"></span>
+                  <span style="width:7px;height:7px;border-radius:999px;background:#c9b9a5;animation:rl-typ 1s infinite .15s;"></span>
+                  <span style="width:7px;height:7px;border-radius:999px;background:#c9b9a5;animation:rl-typ 1s infinite .3s;"></span>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- quick templates -->
+          <div style="display:flex;gap:7px;padding:9px 14px 0;overflow-x:auto;flex-shrink:0;">
+            <sc-for list="{{ msgTemplates }}" as="t" hint-placeholder-count="4">
+              <button onClick="{{ t.onClick }}" style="flex-shrink:0;border:1px solid #ede1d2;background:#fff;border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:600;color:#5c4d3f;cursor:pointer;white-space:nowrap;" style-hover="border-color:#C8553D;color:#C8553D;">{{ t.text }}</button>
+            </sc-for>
+          </div>
+
+          <!-- composer -->
+          <div style="display:flex;align-items:center;gap:9px;padding:12px 14px;flex-shrink:0;">
+            <button onClick="{{ onAttach }}" title="Załącznik" style="width:40px;height:40px;flex-shrink:0;border-radius:999px;border:1px solid #ede1d2;background:#fff;color:#7a6c5d;font-size:16px;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">📎</button>
+            <button onClick="{{ openViewing }}" title="Umów oglądanie" style="width:40px;height:40px;flex-shrink:0;border-radius:999px;border:1px solid #ede1d2;background:#fff;color:#7a6c5d;font-size:15px;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">📅</button>
+            <input value="{{ draft }}" onInput="{{ onDraft }}" onKeyDown="{{ onDraftKey }}" placeholder="Napisz wiadomość…" style="flex:1;min-width:0;border:1px solid #ede1d2;border-radius:999px;padding:11px 16px;font-family:'Hanken Grotesk',sans-serif;font-size:14px;color:#33271D;outline:none;background:#fff;">
+            <button onClick="{{ sendDraft }}" title="Wyślij" style="flex-shrink:0;border:none;border-radius:999px;background:#C8553D;color:#fff;width:44px;height:44px;font-size:16px;cursor:pointer;" style-hover="background:#A8432E;">➤</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ msgEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;display:grid;place-items:center;padding:40px;text-align:center;color:#a8957f;">
+            <div>
+              <div style="font-size:40px;">💬</div>
+              <p style="font-weight:700;color:#7a6c5d;margin:14px 0 4px;">Twoja skrzynka</p>
+              <p style="font-size:13px;margin:0;max-width:280px;">{{ msgEmptyHint }}</p>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+      </sc-if>
+
+      <!-- offer panel (Pokój negocjacji) -->
+      <sc-if value="{{ showOfferPanel }}" hint-placeholder-val="{{ false }}">
+      <aside style="{{ offerPanelStyle }}">
+        <div style="font-size:11px;font-weight:700;color:#a8957f;text-transform:uppercase;letter-spacing:.5px;">Oferta w rozmowie</div>
+        <div style="border:1px solid #f0e6da;border-radius:16px;overflow:hidden;">
+          <div style="height:120px;background:{{ pinned.bg }};"></div>
+          <div style="padding:13px 15px;">
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:700;color:#33271D;">{{ pinned.priceText }}</div>
+            <div style="font-size:12px;color:#a8957f;font-weight:600;">{{ pinned.ppmText }}</div>
+            <div style="font-size:13px;font-weight:700;color:#5c4d3f;margin-top:5px;">{{ pinned.meta }}</div>
+            <button onClick="{{ pinned.onOpen }}" style="width:100%;margin-top:12px;border:1px solid #ede1d2;background:#fff;border-radius:10px;padding:9px;font-size:13px;font-weight:700;color:#5c4d3f;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">Zobacz pełną ofertę</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#a8957f;text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px;">Szybkie akcje</div>
+          <button onClick="{{ openViewing }}" style="width:100%;display:flex;align-items:center;gap:9px;border:none;background:#C8553D;color:#fff;border-radius:12px;padding:12px 14px;font-size:13.5px;font-weight:700;cursor:pointer;margin-bottom:8px;" style-hover="background:#A8432E;">📅 Umów oglądanie</button>
+          <button onClick="{{ onAttach }}" style="width:100%;display:flex;align-items:center;gap:9px;border:1px solid #ede1d2;background:#fff;color:#5c4d3f;border-radius:12px;padding:12px 14px;font-size:13.5px;font-weight:700;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">📎 Dodaj załącznik</button>
+        </div>
+        <div style="margin-top:auto;padding-top:14px;border-top:1px solid #f3ece2;">
+          <div style="font-size:11px;font-weight:700;color:#a8957f;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Bezpieczeństwo</div>
+          <button onClick="{{ reportConv }}" style="border:none;background:transparent;color:#7a6c5d;font-size:12.5px;font-weight:600;cursor:pointer;padding:4px 0;display:block;">⚑ Zgłoś rozmowę</button>
+          <button onClick="{{ blockConv }}" style="border:none;background:transparent;color:#C8553D;font-size:12.5px;font-weight:600;cursor:pointer;padding:4px 0;display:block;">⊘ Zablokuj użytkownika</button>
+        </div>
+      </aside>
+      </sc-if>
+    </div>
+  </main>
+  </sc-if>
+
+</div>
+
+<!-- ===================== VIEWING PICKER ===================== -->
+<sc-if value="{{ showViewing }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeViewing }}" style="position:fixed;inset:0;background:rgba(40,30,22,.5);z-index:75;display:grid;place-items:center;padding:18px;">
+    <div onClick="{{ stop }}" style="background:#FBF6EE;border-radius:20px;max-width:380px;width:100%;border:1px solid #f0e6da;overflow:hidden;box-shadow:0 30px 70px -30px rgba(40,30,22,.6);">
+      <div style="padding:17px 20px;border-bottom:1px solid #f0e6da;display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:700;color:#33271D;margin:0;">📅 Umów oglądanie</h3>
+        <button onClick="{{ closeViewing }}" style="border:none;background:transparent;font-size:18px;color:#7a6c5d;cursor:pointer;">✕</button>
+      </div>
+      <div style="padding:16px 20px 20px;">
+        <p style="font-size:13px;color:#7a6c5d;margin:0 0 14px;">Wybierz proponowany termin — wyślemy go w rozmowie do potwierdzenia.</p>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <sc-for list="{{ viewingSlots }}" as="v" hint-placeholder-count="3">
+            <button onClick="{{ v.onClick }}" style="display:flex;align-items:center;gap:11px;width:100%;border:1px solid #ede1d2;background:#fff;border-radius:14px;padding:13px 15px;font-size:14px;font-weight:700;color:#33271D;cursor:pointer;text-align:left;" style-hover="border-color:#C8553D;background:#fdf6f2;"><span style="font-size:16px;">🕑</span>{{ v.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===================== DETAIL OVERLAY ===================== -->
+<sc-if value="{{ hasDetail }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDetail }}" style="position:fixed;inset:0;background:rgba(40,30,22,.5);z-index:60;display:flex;justify-content:flex-end;">
+    <div onClick="{{ stop }}" style="{{ detailPanelStyle }}">
+      <div style="height:300px;position:relative;background:{{ d.bg }};flex-shrink:0;">
+        <div style="position:absolute;inset:0;opacity:.16;background:radial-gradient(circle at 75% 15%,#fff 0,transparent 50%);"></div>
+        <button onClick="{{ closeDetail }}" style="position:absolute;top:16px;left:16px;width:38px;height:38px;border-radius:999px;border:none;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;font-size:17px;color:#33271D;">✕</button>
+        <div style="position:absolute;top:16px;right:16px;display:flex;gap:8px;">
+          <button onClick="{{ d.onFav }}" style="width:38px;height:38px;border-radius:999px;border:none;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="{{ d.favFill }}" stroke="{{ d.favStroke }}" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.42 3.42 5 5.5 5c1.74 0 2.84 1.05 3.5 2 .66-.95 1.76-2 3.5-2C18.58 5 20 6.42 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+          </button>
+          <button onClick="{{ shareDetail }}" style="width:38px;height:38px;border-radius:999px;border:none;background:rgba(255,255,255,.92);display:grid;place-items:center;cursor:pointer;font-size:15px;">↗</button>
+        </div>
+        <span style="position:absolute;bottom:14px;left:16px;font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.85);background:rgba(0,0,0,.3);padding:4px 10px;border-radius:999px;">galeria · 3D · wirtualny spacer</span>
+      </div>
+
+      <div style="padding:22px 24px 44px;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+          <div>
+            <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:30px;font-weight:700;color:#33271D;">{{ d.priceText }}</div>
+            <div style="font-size:13px;color:#a8957f;font-weight:600;">{{ d.ppmText }}</div>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid #f0e6da;font-size:12.5px;font-weight:700;color:#B98A2E;flex-shrink:0;">★ Jakość {{ d.quality }}/100</div>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:#5c4d3f;margin-top:10px;">{{ d.fullMeta }}</div>
+        <div style="font-size:13.5px;color:#a8957f;margin-top:3px;">📍 {{ d.dist }}, {{ d.city }} · aktywne {{ d.fresh }} dni temu</div>
+
+        <sc-if value="{{ d.hasV }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:18px;padding:17px;background:#fff;border:1px solid #f0e6da;border-radius:16px;">
+            <div style="display:flex;align-items:center;gap:7px;font-weight:700;color:{{ d.vColor }};font-size:14.5px;">{{ d.vDot }} Czy ta cena jest uczciwa? — {{ d.vLabel }}</div>
+            <div style="position:relative;height:11px;border-radius:999px;background:#f3ece2;margin-top:12px;">
+              <div style="position:absolute;top:0;bottom:0;border-radius:999px;background:#e7ede4;left:{{ d.avmLeft }}%;width:{{ d.avmWidth }}%;"></div>
+              <div style="position:absolute;top:-2px;width:4px;height:15px;border-radius:4px;background:{{ d.vColor }};left:calc({{ d.avmMark }}% - 2px);"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:11px;color:#a8957f;margin-top:7px;"><span>{{ d.avmLowText }}</span><span style="color:#5c4d3f;font-weight:700;">wycena REALS · pewność 82%</span><span>{{ d.avmHighText }}</span></div>
+          </div>
+        </sc-if>
+
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;color:#33271D;margin:24px 0 9px;">Koszt całkowity</h3>
+        <div style="background:#fff;border:1px solid #f0e6da;border-radius:16px;overflow:hidden;">
+          <sc-for list="{{ d.costRows }}" as="r" hint-placeholder-count="4">
+            <div style="{{ r.style }}">
+              <div><div style="font-size:13.5px;font-weight:700;color:#5c4d3f;">{{ r.label }}</div><div style="font-size:11px;color:#a8957f;">{{ r.note }}</div></div>
+              <div style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#33271D;">{{ r.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;color:#33271D;margin:24px 0 9px;">Wiedza o okolicy</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+          <sc-for list="{{ d.hood }}" as="h" hint-placeholder-count="4">
+            <div style="background:#fff;border:1px solid #f0e6da;border-radius:14px;padding:12px 14px;">
+              <div style="display:flex;align-items:center;gap:6px;color:#3F5142;"><span style="font-size:15px;">{{ h.icon }}</span><span style="font-size:11.5px;color:#a8957f;font-weight:700;">{{ h.label }}</span></div>
+              <div style="font-size:14px;font-weight:700;color:#33271D;margin-top:3px;">{{ h.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:18px;padding:15px;border-radius:16px;background:#e7ede4;border:1px solid #d6e1d2;">
+          <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#33271D;font-size:13.5px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3F5142" stroke-width="2"><polygon points="12 2 22 8.5 12 15 2 8.5"></polygon><polyline points="2 15.5 12 22 22 15.5"></polyline></svg>{{ d.dedupTitle }}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+            <sc-for list="{{ d.sources }}" as="s" hint-placeholder-count="2">
+              <span style="font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:999px;background:#fff;border:1px solid #d6e1d2;color:#5c4d3f;display:inline-flex;align-items:center;gap:4px;"><span style="color:#3F5142;">✓</span>{{ s.name }}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:22px;">
+          <button onClick="{{ bookViewing }}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:14px;border:none;background:#C8553D;color:#fff;font-weight:700;font-size:14.5px;cursor:pointer;" style-hover="background:#A8432E;">📅 Umów oglądanie</button>
+          <button onClick="{{ contactAgent }}" style="padding:14px 20px;border-radius:14px;border:1px solid #ede1d2;background:#fff;color:#33271D;font-weight:700;font-size:14.5px;cursor:pointer;" style-hover="border-color:#C8553D;color:#C8553D;">✉ Napisz</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ===================== COMPARE ===================== -->
+<sc-if value="{{ showCmp }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeCmp }}" style="position:fixed;inset:0;background:rgba(40,30,22,.55);z-index:70;display:grid;place-items:center;padding:18px;">
+    <div onClick="{{ stop }}" style="background:#FBF6EE;border-radius:22px;max-width:860px;width:100%;max-height:88vh;overflow:auto;border:1px solid #f0e6da;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid #f0e6da;position:sticky;top:0;background:#FBF6EE;z-index:1;">
+        <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;color:#33271D;margin:0;">Porównanie ofert</h3>
+        <button onClick="{{ closeCmp }}" style="border:none;background:transparent;cursor:pointer;font-size:20px;color:#7a6c5d;">✕</button>
+      </div>
+      <div style="overflow-x:auto;padding:0 8px 12px;">
+        <table style="border-collapse:collapse;width:100%;min-width:480px;">
+          <thead><tr>
+            <th style="padding:14px 12px;"></th>
+            <sc-for list="{{ cmpItems }}" as="c" hint-placeholder-count="2">
+              <th style="padding:14px 12px;min-width:150px;text-align:left;vertical-align:bottom;">
+                <div style="height:58px;border-radius:12px;background:{{ c.bg }};margin-bottom:9px;"></div>
+                <div style="font-size:13px;font-weight:700;color:#33271D;">{{ c.dist }}</div>
+              </th>
+            </sc-for>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ cmpRows }}" as="r" hint-placeholder-count="9">
+              <tr style="{{ r.trStyle }}">
+                <td style="padding:11px 12px;font-size:12.5px;font-weight:700;color:#a8957f;white-space:nowrap;">{{ r.label }}</td>
+                <sc-for list="{{ r.cells }}" as="cell" hint-placeholder-count="2">
+                  <td style="padding:11px 12px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:{{ cell.color }};">{{ cell.text }}</td>
+                </sc-for>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<!-- compare tray -->
+<sc-if value="{{ hasCmp }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:55;background:#33271D;color:#fff;border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 18px 40px -18px rgba(0,0,0,.6);">
+    <span style="font-size:13.5px;font-weight:600;">{{ cmpCountText }} do porównania</span>
+    <button onClick="{{ openCmp }}" style="{{ cmpOpenStyle }}">Porównaj</button>
+    <button onClick="{{ clearCmp }}" style="border:none;background:transparent;color:#bbb;cursor:pointer;font-size:16px;">✕</button>
+  </div>
+</sc-if>
+
+<!-- toast -->
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:80;background:#3F5142;color:#fff;padding:12px 20px;border-radius:14px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 14px 34px -14px rgba(0,0,0,.6);">✨ {{ toast }}</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    const DIST = {
+      "Gdynia Oksywie":{city:"Gdynia",cx:158,cy:58,fair:9800,commute:38,noise:"Cicho",schools:3},
+      "Gdynia Cisowa":{city:"Gdynia",cx:92,cy:92,fair:8600,commute:42,noise:"Cicho",schools:3},
+      "Gdynia Śródmieście":{city:"Gdynia",cx:188,cy:112,fair:14900,commute:30,noise:"Średnio",schools:4},
+      "Gdynia Działki Leśne":{city:"Gdynia",cx:150,cy:132,fair:13600,commute:31,noise:"Średnio",schools:4},
+      "Gdynia Orłowo":{city:"Gdynia",cx:232,cy:178,fair:18200,commute:28,noise:"Cicho",schools:5},
+      "Sopot":{city:"Sopot",cx:224,cy:252,fair:23500,commute:22,noise:"Średnio",schools:5},
+      "Gdańsk Żabianka":{city:"Gdańsk",cx:236,cy:300,fair:17400,commute:20,noise:"Cicho",schools:5},
+      "Gdańsk Oliwa":{city:"Gdańsk",cx:188,cy:318,fair:16900,commute:18,noise:"Cicho",schools:5},
+      "Gdańsk Przymorze":{city:"Gdańsk",cx:242,cy:342,fair:16300,commute:19,noise:"Średnio",schools:4},
+      "Gdańsk Wrzeszcz":{city:"Gdańsk",cx:196,cy:384,fair:15600,commute:12,noise:"Głośno",schools:4},
+      "Gdańsk Nowy Port":{city:"Gdańsk",cx:246,cy:416,fair:10400,commute:24,noise:"Średnio",schools:3},
+      "Gdańsk Śródmieście":{city:"Gdańsk",cx:210,cy:462,fair:17800,commute:4,noise:"Głośno",schools:4},
+      "Gdańsk Jasień":{city:"Gdańsk",cx:120,cy:470,fair:13900,commute:22,noise:"Cicho",schools:4},
+      "Gdańsk Orunia":{city:"Gdańsk",cx:176,cy:526,fair:11200,commute:16,noise:"Średnio",schools:3},
+    };
+    const GRAD = [
+      ["#C8553D","#9e3f2c"],["#5E7A60","#3a4f3c"],["#B98A2E","#7a5a18"],
+      ["#6E8CA0","#3f5566"],["#A05C4A","#6b3a2c"],["#5B7E78","#33504b"],
+      ["#8A7B5C","#564a32"],["#7A6A8C","#473c54"],["#4F7A6A","#2c483e"],
+    ];
+    let _id=0;
+    const mk=(dist,rooms,area,floor,year,market,type,price,amen,sources,gi)=>{
+      const d=DIST[dist]; const fairTotal=d.fair*area;
+      return {id:++_id,dist,city:d.city,rooms,area,floor,year,market,type,price,amen,sources,
+        avmLow:Math.round(fairTotal*0.94),avmHigh:Math.round(fairTotal*1.06),
+        cx:d.cx+((gi%3)-1)*11,cy:d.cy+(Math.floor(gi/3)%3-1)*11,
+        commute:d.commute,noise:d.noise,schools:d.schools,
+        fresh:[1,2,3,5,6,8,11,14][gi%8],grad:GRAD[gi%GRAD.length],quality:0};
+    };
+    const RAW=[
+      mk("Gdańsk Wrzeszcz",3,58,3,2019,"wtórny","kup",720000,["balkon","parking"],["Maxnieruchomości","Trójmiasto Estate","Home Points","Górski"],0),
+      mk("Gdańsk Oliwa",3,73,0,2019,"wtórny","kup",1649000,["ogródek","parking"],["EstiHome"],1),
+      mk("Gdańsk Przymorze",2,46,5,2024,"pierwotny","kup",690000,["balkon"],["Inpro Deweloper"],2),
+      mk("Gdańsk Żabianka",4,92,7,2022,"wtórny","kup",1790000,["balkon","parking","winda"],["Trójmiasto Estate","Lokum"],3),
+      mk("Gdańsk Jasień",4,110,2,2025,"pierwotny","kup",1639000,["ogródek","balkon"],["Robyg","EstiHome","Domesta"],4),
+      mk("Gdańsk Śródmieście",2,52,4,1998,"wtórny","kup",985000,["balkon"],["Home Points"],5),
+      mk("Gdańsk Orunia",2,48,1,2013,"wtórny","kup",549000,["parking"],["Pomorskie Domy"],6),
+      mk("Gdańsk Nowy Port",3,64,2,2008,"wtórny","kup",615000,[],["Trevo Nieruchomości"],7),
+      mk("Sopot",2,49,3,2017,"wtórny","kup",1290000,["balkon","winda"],["Sopot Premium","EstiHome"],8),
+      mk("Gdynia Orłowo",3,70,2,2023,"pierwotny","kup",1380000,["balkon","parking","winda"],["Górski"],9),
+      mk("Gdynia Śródmieście",2,45,1,2025,"pierwotny","kup",931000,["balkon"],["Budros","Górski"],10),
+      mk("Gdynia Działki Leśne",3,66,4,2010,"wtórny","kup",829000,["balkon"],["Pomorskie Domy"],11),
+      mk("Gdynia Oksywie",3,67,1,2025,"pierwotny","kup",642000,["balkon","ogródek"],["AMProjekt"],12),
+      mk("Gdynia Cisowa",2,50,2,2006,"wtórny","kup",459000,[],["Trevo Nieruchomości"],13),
+      mk("Gdańsk Wrzeszcz",1,31,1,2026,"pierwotny","kup",540000,["balkon"],["Wrzeszcz Invest"],14),
+      mk("Gdańsk Oliwa",4,96,3,2021,"wtórny","kup",2150000,["balkon","parking","winda","ogródek"],["Sopot Premium"],15),
+      mk("Gdańsk Wrzeszcz",2,44,2,2018,"wtórny","wynajmij",3600,["balkon"],["Home Points"],16),
+      mk("Gdańsk Śródmieście",1,30,5,2015,"wtórny","wynajmij",2750,["winda"],["Trójmiasto Estate"],17),
+      mk("Sopot",2,52,1,2019,"wtórny","wynajmij",4500,["balkon","ogródek"],["Sopot Premium"],18),
+      mk("Gdynia Śródmieście",3,64,4,2020,"wtórny","wynajmij",4200,["balkon","parking"],["Górski"],19),
+      mk("Gdańsk Przymorze",2,47,6,2022,"pierwotny","wynajmij",3900,["balkon"],["Inpro Deweloper"],20),
+    ];
+    RAW.forEach(l=>{let q=50;q+=Math.min(20,l.amen.length*6);q+=l.fresh<=3?15:l.fresh<=7?8:0;q+=l.sources.length===1?10:4;q+=l.year>=2020?8:2;l.quality=Math.min(99,q);});
+    this.LISTINGS=RAW; this.DIST=DIST;
+    this.SLOTS=['Środa, 14 maja · 17:00','Czwartek, 15 maja · 18:30','Sobota, 17 maja · 11:00'];
+    const seedConvs=this.buildConvs();
+    this._svg=null;
+    this._drag=null;
+
+    this.state={
+      screen:'landing', device:'desktop',
+      type:'kup', q:'', priceMax:3000000, rentMax:6000,
+      rooms:[], areaMin:0, market:'any', amen:[], onlyFair:false, iso:false, sort:'foryou', showMore:false,
+      hovered:null, selectedId:null, fav:{}, cmp:[], showCmp:false, saved:[], toast:'', copied:false,
+      drawing:false, rect:null, mobMap:false,
+      onbStep:0, onbAreas:[], onbBudget:800000, onbRooms:[], onbMusts:[],
+      sellDone:{adres:true, metraz:true, zdjecia:false, rzut:false, opis:false},
+      bizTab:'agencja',
+      convs:seedConvs, msgPersp:'buyer', msgLayout:'A', activeConv:null, draft:'', typing:{}, showViewing:false, showConvMenu:false,
+    };
+  }
+
+  // ---------- helpers ----------
+  fmt(n){return n.toLocaleString('pl-PL');}
+  ppm2(l){return Math.round(l.price/l.area);}
+  verdict(l){if(l.type==='wynajmij')return null;if(l.price<l.avmLow)return 'below';if(l.price>l.avmHigh)return 'above';return 'normal';}
+  vColor(v){return {below:'#2E7D4F',normal:'#3F5142',above:'#C8553D'}[v];}
+  vLabel(v){return {below:'Poniżej rynku',normal:'Uczciwa cena',above:'Powyżej rynku'}[v];}
+  vDot(v){const c=this.vColor(v);return v==='below'?'▾':v==='above'?'▴':'✓';}
+  monthly(price){const P=price*0.8,r=0.074/12,n=300;return Math.round((P*r)/(1-Math.pow(1+r,-n)));}
+  avmGeom(l){const lo=l.avmLow*0.9,hi=l.avmHigh*1.1;const pos=x=>Math.max(0,Math.min(100,((x-lo)/(hi-lo))*100));return {left:pos(l.avmLow),width:pos(l.avmHigh)-pos(l.avmLow),mark:pos(l.price)};}
+  toast(m){this.setState({toast:m});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:''}),2400);}
+
+  // ---------- nav ----------
+  goHome=()=>this.setState({screen:'landing',selectedId:null});
+  goSearch=()=>this.setState({screen:'search',selectedId:null});
+  goSell=()=>this.setState({screen:'sell',selectedId:null});
+  goBiz=()=>this.setState({screen:'business',selectedId:null});
+  setBizAgencja=()=>this.setState({bizTab:'agencja'});
+  setBizDeweloper=()=>this.setState({bizTab:'deweloper'});
+  promote=()=>this.toast('Promocja włączona — ogłoszenie wyróżnione w wynikach');
+  manageSub=()=>this.toast('Otwieram ustawienia subskrypcji');
+  publishPrice=()=>this.toast('Cennik opublikowany → dane.gov.pl · zgodne z ustawą');
+  goOnboarding=()=>this.setState({screen:'onboarding',onbStep:0});
+  setDesktop=()=>this.setState({device:'desktop'});
+  setMobile=()=>this.setState({device:'mobile'});
+
+  // ---------- filters ----------
+  onQ=(e)=>this.setState({q:e.target.value});
+  setKup=()=>this.setState({type:'kup'});
+  setWynajem=()=>this.setState({type:'wynajmij'});
+  onPrice=(e)=>{const v=+e.target.value;this.state.type==='kup'?this.setState({priceMax:v}):this.setState({rentMax:v});};
+  onArea=(e)=>this.setState({areaMin:+e.target.value});
+  onSort=(e)=>this.setState({sort:e.target.value});
+  toggleMore=()=>this.setState(s=>({showMore:!s.showMore}));
+  toggleRoom=(n)=>this.setState(s=>({rooms:s.rooms.includes(n)?s.rooms.filter(x=>x!==n):[...s.rooms,n]}));
+  toggleAmen=(a)=>this.setState(s=>({amen:s.amen.includes(a)?s.amen.filter(x=>x!==a):[...s.amen,a]}));
+  setMktWtorny=()=>this.setState(s=>({market:s.market==='wtórny'?'any':'wtórny'}));
+  setMktPierwotny=()=>this.setState(s=>({market:s.market==='pierwotny'?'any':'pierwotny'}));
+  toggleFair=()=>this.setState(s=>({onlyFair:!s.onlyFair}));
+  toggleIso=()=>this.setState(s=>({iso:!s.iso}));
+  toggleMobMap=()=>this.setState(s=>({mobMap:!s.mobMap}));
+
+  // ---------- map draw ----------
+  mapRef=(el)=>{this._svg=el;};
+  toggleDraw=()=>this.setState(s=>({drawing:!s.drawing,rect:s.drawing?s.rect:null}));
+  clearRect=()=>this.setState({rect:null});
+  _toVB(e){if(!this._svg)return{x:0,y:0};const r=this._svg.getBoundingClientRect();return{x:((e.clientX-r.left)/r.width)*400,y:((e.clientY-r.top)/r.height)*600};}
+  onMapDown=(e)=>{if(!this.state.drawing)return;const p=this._toVB(e);this._drag=p;this.setState({rect:{x:p.x,y:p.y,w:0,h:0}});};
+  onMapMove=(e)=>{if(!this.state.drawing||!this._drag)return;const p=this._toVB(e),s=this._drag;this.setState({rect:{x:Math.min(s.x,p.x),y:Math.min(s.y,p.y),w:Math.abs(p.x-s.x),h:Math.abs(p.y-s.y)}});};
+  onMapUp=()=>{const r=this.state.rect;this._drag=null;this.setState({drawing:false,rect:(r&&r.w<8)?null:r});};
+
+  // ---------- actions ----------
+  toggleFav=(id)=>this.setState(s=>({fav:{...s.fav,[id]:!s.fav[id]}}));
+  toggleCmp=(id)=>this.setState(s=>({cmp:s.cmp.includes(id)?s.cmp.filter(x=>x!==id):(s.cmp.length<4?[...s.cmp,id]:s.cmp)}));
+  openDetail=(id)=>this.setState({selectedId:id});
+  closeDetail=()=>this.setState({selectedId:null});
+  openCmp=()=>this.setState({showCmp:true});
+  closeCmp=()=>this.setState({showCmp:false});
+  clearCmp=()=>this.setState({cmp:[]});
+  stop=(e)=>e.stopPropagation();
+  saveSearch=()=>{this.setState(s=>({saved:[...s.saved,1]}));this.toast('Zapisano wyszukiwanie · alerty włączone');};
+  copyUrl=()=>{this.setState({copied:true});clearTimeout(this._c);this._c=setTimeout(()=>this.setState({copied:false}),1500);this.toast('Skopiowano link wyszukiwania');};
+  shareDetail=()=>this.toast('Skopiowano link do oferty');
+  bookViewing=()=>this.toast('Wysłano prośbę o termin oglądania');
+  contactAgent=()=>this.setState(st=>{const id=st.selectedId;const l=this.LISTINGS.find(x=>x.id===id);if(!l)return{};const buyer=st.convs.buyer.slice();let conv=buyer.find(c=>c.listingId===id);let convId;if(conv){convId=conv.id;}else{convId='new-'+id;const src=l.sources[0]||'Sprzedający';buyer.unshift({id:convId,listingId:id,unread:0,party:{name:src,avatarBg:'#6E8CA0',online:true,lastSeen:'',sub:l.sources.length?'Biuro / deweloper':'Sprzedający prywatny'},messages:[]});}return{convs:{...st.convs,buyer},msgPersp:'buyer',activeConv:convId,screen:'messages',selectedId:null};});
+  publish=()=>this.toast('Ogłoszenie opublikowane — za darmo!');
+  setHover=(id)=>this.setState({hovered:id});
+
+  // ---------- onboarding ----------
+  toggleOnbArea=(a)=>this.setState(s=>({onbAreas:s.onbAreas.includes(a)?s.onbAreas.filter(x=>x!==a):[...s.onbAreas,a]}));
+  onBudget=(e)=>this.setState({onbBudget:+e.target.value});
+  toggleOnbRoom=(n)=>this.setState(s=>({onbRooms:s.onbRooms.includes(n)?s.onbRooms.filter(x=>x!==n):[...s.onbRooms,n]}));
+  toggleOnbMust=(m)=>this.setState(s=>({onbMusts:s.onbMusts.includes(m)?s.onbMusts.filter(x=>x!==m):[...s.onbMusts,m]}));
+  onbBack=()=>this.setState(s=>({onbStep:Math.max(0,s.onbStep-1)}));
+  onbNext=()=>{const s=this.state;if(s.onbStep>=3){const rooms=s.onbRooms.slice();const areas=s.onbAreas.slice();const amen=s.onbMusts.filter(m=>['balkon','ogródek','parking','winda'].includes(m));this.setState({screen:'search',rooms,priceMax:s.onbBudget,amen});this.toast('Gotowe! Dobraliśmy oferty pod Ciebie');}else{this.setState({onbStep:s.onbStep+1});}};
+  toggleSell=(k)=>this.setState(s=>({sellDone:{...s.sellDone,[k]:!s.sellDone[k]}}));
+
+  // ---------- filtered list ----------
+  filtered(){
+    const s=this.state;
+    let r=this.LISTINGS.filter(l=>l.type===s.type);
+    const pmax=s.type==='kup'?s.priceMax:s.rentMax;
+    r=r.filter(l=>l.price<=pmax);
+    if(s.q.trim()){const k=s.q.toLowerCase();r=r.filter(l=>(l.dist+' '+l.city).toLowerCase().includes(k));}
+    if(s.rooms.length)r=r.filter(l=>s.rooms.includes(l.rooms>=4?4:l.rooms));
+    if(s.areaMin)r=r.filter(l=>l.area>=s.areaMin);
+    if(s.market!=='any')r=r.filter(l=>l.market===s.market);
+    if(s.amen.length)r=r.filter(l=>s.amen.every(a=>l.amen.includes(a)));
+    if(s.onlyFair)r=r.filter(l=>{const v=this.verdict(l);return v==='below'||v==='normal';});
+    if(s.iso)r=r.filter(l=>l.commute<=25);
+    if(s.rect){const R=s.rect;r=r.filter(l=>l.cx>=R.x&&l.cx<=R.x+R.w&&l.cy>=R.y&&l.cy<=R.y+R.h);}
+    const score=(l)=>{let x=0;const v=this.verdict(l);if(v==='below')x+=30;else if(v==='normal')x+=12;x+=l.quality*0.4;x+=(15-l.fresh);return x;};
+    if(s.sort==='foryou')r=[...r].sort((a,b)=>score(b)-score(a));
+    if(s.sort==='price')r=[...r].sort((a,b)=>a.price-b.price);
+    if(s.sort==='ppm2')r=[...r].sort((a,b)=>this.ppm2(a)-this.ppm2(b));
+    if(s.sort==='fresh')r=[...r].sort((a,b)=>a.fresh-b.fresh);
+    return r;
+  }
+
+  freshText(f){return f===1?'wczoraj':'aktywne '+f+' dni temu';}
+
+  cardVM(l){
+    const v=this.verdict(l); const g=this.avmGeom(l); const s=this.state;
+    const isFav=!!s.fav[l.id], isCmp=s.cmp.includes(l.id), on=s.hovered===l.id;
+    return {
+      id:l.id, year:l.year, bg:`linear-gradient(135deg,${l.grad[0]},${l.grad[1]})`,
+      priceText:this.fmt(l.price)+' zł'+(l.type==='wynajmij'?'/mc':''),
+      ppmText:this.fmt(this.ppm2(l))+' zł/m²',
+      meta:`${l.rooms} pok · ${l.area} m² · ${l.floor===0?'parter':l.floor+' p.'}`,
+      dist:l.dist, market:'rynek '+l.market, commute:l.commute, freshText:this.freshText(l.fresh),
+      hasV:!!v, vColor:v?this.vColor(v):'#5c4d3f', vLabel:v?this.vLabel(v):'', vDot:v?this.vDot(v):'',
+      avmLeft:g.left, avmWidth:g.width, avmMark:g.mark,
+      hasSources:l.sources.length>1, sourcesText:l.sources.length>1?`Oferowane przez ${l.sources.length} biura — scalone w 1`:'',
+      favFill:isFav?'#C8553D':'none', favStroke:isFav?'#C8553D':'#7a6c5d',
+      onClick:()=>this.openDetail(l.id), onFav:(e)=>{e.stopPropagation();this.toggleFav(l.id);}, onCmp:(e)=>{e.stopPropagation();this.toggleCmp(l.id);},
+      onEnter:()=>this.setHover(l.id), onLeave:()=>this.setHover(null),
+      wrapStyle:`background:#fff;border:1px solid ${on?'#C8553D':'#f0e6da'};border-radius:20px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;box-shadow:0 10px 30px -24px rgba(80,50,40,.5);`,
+      rowStyle:`background:#fff;border:1px solid ${on?'#C8553D':'#f0e6da'};border-radius:18px;overflow:hidden;cursor:pointer;display:flex;flex-shrink:0;transition:border-color .2s,box-shadow .2s;box-shadow:${on?'0 16px 36px -22px rgba(80,50,40,.45)':'none'};`,
+      cmpStyle:`display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;border:1px solid ${isCmp?'#C8553D':'#ede1d2'};background:${isCmp?'#f3ddd4':'transparent'};color:${isCmp?'#C8553D':'#a8957f'};border-radius:999px;padding:4px 10px;cursor:pointer;`,
+      cmpLabel:isCmp?'✓ Dodano':'⤢ Porównaj',
+    };
+  }
+
+  pinVM(l){
+    const v=this.verdict(l); const c=v?this.vColor(v):'#5c4d3f'; const on=this.state.hovered===l.id;
+    const label=l.type==='wynajmij'?Math.round(l.price/1000)+'k':(l.price>=1e6?(l.price/1e6).toFixed(2):(l.price/1e6).toFixed(1));
+    return {id:l.id,cx:l.cx,cy:l.cy,color:c,r:on?17:13,sw:on?2.4:1.8,fs:on?8.5:7.4,label,on,
+      name:l.dist.replace(/^(Gdańsk|Gdynia) /,''),
+      onClick:()=>this.openDetail(l.id), onEnter:()=>this.setHover(l.id), onLeave:()=>this.setHover(null)};
+  }
+
+  // ---------- business panel ----------
+  bizVM(){
+    const s=this.state; const compact=s.device==='mobile'; const isAg=s.bizTab==='agencja';
+    const segBiz=(active)=>`border:none;border-radius:999px;padding:9px 18px;font-size:14px;font-weight:700;cursor:pointer;background:${active?'#33271D':'transparent'};color:${active?'#fff':'#7a6c5d'};`;
+    const kpis=isAg?[
+      {big:'24',label:'Aktywne ogłoszenia',sub:'+3 w tym tygodniu'},
+      {big:'8 420',label:'Wyświetlenia · 7 dni',sub:'+12% wzgl. średniej'},
+      {big:'612',label:'Zapisy do ulubionych',sub:'wysokie zainteresowanie'},
+      {big:'18',label:'Nowe leady',sub:'5 czeka na kontakt'},
+    ]:[
+      {big:'120',label:'Lokali w ofercie',sub:'Osiedle Nadmorskie'},
+      {big:'47',label:'Sprzedane',sub:'39% inwestycji'},
+      {big:'14',label:'Rezerwacje',sub:'aktywne'},
+      {big:'65%',label:'Etap budowy',sub:'stan surowy zamknięty'},
+    ];
+    const leadDefs=[
+      ['Anna K.','3 pok · Wrzeszcz','Nowy','#C8553D','8 min temu'],
+      ['Marek W.','2 pok · Przymorze','Kontakt','#B98A2E','1 godz. temu'],
+      ['Rodzina Nowak','4 pok · Oliwa','Oglądanie','#3F7A52','wczoraj'],
+      ['Piotr S.','2 pok · Sopot','Oferta','#3F5142','2 dni temu'],
+      ['Julia M.','1 pok · Śródmieście','Nowy','#C8553D','2 dni temu'],
+    ];
+    const leads=leadDefs.map(([name,listing,status,color,time],i)=>({name,listing,status,time,
+      avatar:name.charAt(0), avatarBg:color,
+      onClick:this.goSellerInbox,
+      rowStyle:`display:flex;align-items:center;gap:12px;padding:13px 4px;cursor:pointer;${i?'border-top:1px solid #f3ece2;':''}`,
+      badgeStyle:`background:${color}1f;color:${color};font-size:11px;font-weight:700;border-radius:999px;padding:4px 11px;white-space:nowrap;`}));
+    const listDefs=[
+      ['Gdańsk Wrzeszcz','720 000 zł',1240,86,7,82,true],
+      ['Gdańsk Oliwa','1 649 000 zł',980,54,4,88,false],
+      ['Sopot','1 290 000 zł',1520,102,9,79,true],
+      ['Gdynia Orłowo','1 380 000 zł',640,33,2,74,false],
+    ];
+    const agListings=listDefs.map(([dist,price,views,saves,leads,quality,promoted],i)=>({dist,price,views,saves,leads,quality,
+      rowStyle:`padding:14px 4px;${i?'border-top:1px solid #f3ece2;':''}`,
+      qColor:quality>=80?'#3F7A52':quality>=70?'#B98A2E':'#C8553D',
+      promoteLabel:promoted?'★ Wyróżnione':'Promuj',
+      promoteStyle:`border:1px solid ${promoted?'#B98A2E':'#ede1d2'};background:${promoted?'#f5e7cc':'#fff'};color:${promoted?'#8a6418':'#5c4d3f'};border-radius:999px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;`,
+      onPromote:this.promote}));
+    // developer unit matrix
+    const floors=['5 p.','4 p.','3 p.','2 p.','1 p.','Parter'];
+    const stMap={free:{bg:'#e7ede4',bd:'#5E7A60',tx:'#3F5142'},rez:{bg:'#f5e7cc',bd:'#cf9f3a',tx:'#8a6418'},sold:{bg:'#efe7da',bd:'#d8c6b2',tx:'#b3a48c'}};
+    let free=0,rez=0,sold=0; let n=0;
+    const bizUnits=floors.map((fl,fi)=>({floor:fl, cells:Array.from({length:8},(_,ui)=>{
+      n++; const st=(n%11===0||n%11===5)?'rez':((n%3===0)||fi>=4)?'sold':'free';
+      if(st==='free')free++; else if(st==='rez')rez++; else sold++;
+      const c=stMap[st];
+      return {num:(fi*8+ui+1), cellStyle:`width:${compact?28:34}px;height:${compact?28:34}px;border-radius:8px;background:${c.bg};border:1px solid ${c.bd};color:${c.tx};display:grid;place-items:center;font-family:'Space Mono',monospace;font-size:${compact?9:10}px;font-weight:700;`};
+    })}));
+    const unitCounts=[{label:'Dostępne',n:free,color:'#5E7A60'},{label:'Rezerwacja',n:rez,color:'#cf9f3a'},{label:'Sprzedane',n:sold,color:'#b3a48c'}];
+    return {
+      isBiz:s.screen==='business',
+      bizPadStyle:compact?'padding:24px 16px 60px;width:100%;':'padding:34px 22px 64px;max-width:1180px;margin:0 auto;width:100%;',
+      bizTitle:isAg?'Panel agencji':'Panel dewelopera',
+      bizAgStyle:segBiz(isAg), bizDevStyle:segBiz(!isAg),
+      bizIsAgencja:isAg, bizIsDeweloper:!isAg,
+      setBizAgencja:this.setBizAgencja, setBizDeweloper:this.setBizDeweloper,
+      bizName:isAg?'Trójmiasto Estate':'Inpro Deweloper', bizLogoLetter:isAg?'T':'I',
+      bizLogoBg:isAg?'#C8553D':'#3F5142',
+      bizVerified:isAg?'Zweryfikowane biuro · 12 agentów':'Zweryfikowany deweloper',
+      bizPlanLabel:isAg?'Plan Pro':'Pakiet inwestycji',
+      bizPlanPrice:isAg?'1 200 zł/mc':'2 900 zł/mc', manageSub:this.manageSub,
+      bizKpis:kpis,
+      bizKpiStyle:compact?'display:grid;grid-template-columns:1fr 1fr;gap:12px;':'display:grid;grid-template-columns:repeat(4,1fr);gap:16px;',
+      bizSplitStyle:compact?'display:flex;flex-direction:column;gap:18px;margin-top:20px;':'display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;align-items:start;',
+      leads, agListings,
+      bizUnits, unitCounts, publishPrice:this.publishPrice,
+      devTopStyle:compact?'display:flex;flex-direction:column;gap:16px;margin-top:20px;':'display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;',
+    };
+  }
+
+  // ---------- messaging ----------
+  buildConvs(){
+    const m=(from,text,time,read,kind)=>({id:Math.random(),from,text,time,read:read!==false,kind:kind||'text'});
+    const buyer=[
+      {id:'b1',listingId:1,unread:0,party:{name:'Marta Lewandowska',avatarBg:'#C8553D',online:true,lastSeen:'',sub:'Biuro Trójmiasto Estate'},messages:[
+        m('them','Dzień dobry! Tak, mieszkanie przy Grunwaldzkiej jest nadal dostępne 🙂','10:02'),
+        m('me','Dzień dobry, czy cena 720 000 zł jest do negocjacji?','10:05'),
+        m('them','Jest niewielkie pole do rozmowy. Proponuję najpierw oglądanie — wtedy łatwiej omówić szczegóły.','10:07'),
+        m('me','Jasne, w takim razie chętnie umówię się na ten tydzień.','10:09'),
+      ]},
+      {id:'b2',listingId:9,unread:1,party:{name:'Tomasz (właściciel)',avatarBg:'#3F5142',online:false,lastSeen:'2 godz. temu',sub:'Sprzedający prywatny'},messages:[
+        m('them','Witam, mieszkanie w Sopocie wciąż aktualne.','wczoraj'),
+        m('me','Czy do mieszkania przynależy miejsce postojowe?','wczoraj'),
+        m('them','Tak, jedno miejsce w hali garażowej w cenie.','wczoraj'),
+        m('them','Mogę też podesłać rzut, jeśli będzie potrzebny.','08:30',false),
+      ]},
+      {id:'b3',listingId:3,unread:0,party:{name:'Inpro Deweloper',avatarBg:'#B98A2E',online:true,lastSeen:'',sub:'Zweryfikowany deweloper'},messages:[
+        m('them','Dziękujemy za zainteresowanie inwestycją na Przymorzu!','2 dni'),
+        m('me','Jakie są dostępne terminy odbioru lokali?','2 dni'),
+        m('them','Najbliższy odbiór planujemy na Q1 2026. Mam wysłać harmonogram?','2 dni'),
+      ]},
+    ];
+    const seller=[
+      {id:'s1',listingId:1,unread:1,party:{name:'Anna K.',avatarBg:'#6E8CA0',online:true,lastSeen:'',sub:'Zainteresowana kupnem'},messages:[
+        m('them','Dzień dobry, jestem zainteresowana mieszkaniem na Wrzeszczu.','09:40'),
+        m('me','Dzień dobry! Tak, jest dostępne. Chętnie odpowiem na pytania.','09:42'),
+        m('them','Czy cena 720 000 zł jest do negocjacji?','09:45',false),
+      ]},
+      {id:'s2',listingId:1,unread:1,party:{name:'Marek W.',avatarBg:'#5B7E78',online:false,lastSeen:'35 min temu',sub:'Zainteresowany kupnem'},messages:[
+        m('them','Witam, czy możliwe oglądanie w nadchodzący weekend?','wczoraj',false),
+      ]},
+      {id:'s3',listingId:1,unread:0,party:{name:'Rodzina Nowak',avatarBg:'#A05C4A',online:false,lastSeen:'wczoraj',sub:'Zainteresowani kupnem'},messages:[
+        m('me','Dzień dobry, zapraszam na oglądanie w środę o 17:00.','2 dni'),
+        m('them','Dziękujemy, potwierdzamy! Do zobaczenia.','2 dni'),
+      ]},
+    ];
+    return {buyer,seller};
+  }
+  _now(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+  goMessages=()=>this.setState(st=>({screen:'messages',selectedId:null,activeConv:st.activeConv||((st.convs[st.msgPersp][0]||{}).id)||null}));
+  goSellerInbox=()=>this.setState({screen:'messages',msgPersp:'seller',activeConv:'s1',selectedId:null});
+  setMsgPersp(p){this.setState(st=>({msgPersp:p,activeConv:(st.convs[p][0]||{}).id||null,showConvMenu:false}));}
+  openConv=(id)=>this.setState(st=>{const persp=st.msgPersp;const arr=st.convs[persp].map(c=>c.id===id?{...c,unread:0}:c);return {convs:{...st.convs,[persp]:arr},activeConv:id,showConvMenu:false};});
+  onDraft=(e)=>this.setState({draft:e.target.value});
+  onComposerKey=(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();this.sendText(this.state.activeConv,this.state.draft);}};
+  attach=()=>this.sendText(this.state.activeConv,'kuchnia.jpg','attach');
+  bookSlot=(slot)=>{this.setState({showViewing:false});this.sendText(this.state.activeConv,slot,'viewing');};
+  sendText(convId,text,kind){
+    if(!convId)return; kind=kind||'text'; if(kind==='text'&&!String(text).trim())return;
+    const persp=this.state.msgPersp; const time=this._now();
+    this.setState(st=>{const arr=st.convs[persp].map(c=>c.id!==convId?c:{...c,messages:c.messages.concat([{id:Math.random(),from:'me',text,time,read:false,kind}])});return {convs:{...st.convs,[persp]:arr},draft:'',showConvMenu:false};});
+    this._scheduleReply(convId,text,kind);
+  }
+  _scheduleReply(convId,text,kind){
+    clearTimeout(this._typT);clearTimeout(this._repT);
+    const persp=this.state.msgPersp;
+    this._typT=setTimeout(()=>this.setState(st=>({typing:{...st.typing,[convId]:true}})),550);
+    this._repT=setTimeout(()=>{
+      const reply=this._reply(persp,text,kind);
+      this.setState(st=>{const arr=st.convs[persp].map(c=>c.id!==convId?c:{...c,messages:c.messages.map(mm=>mm.from==='me'?{...mm,read:true}:mm).concat([{id:Math.random(),from:'them',text:reply,time:this._now(),read:true,kind:'text'}])});return {convs:{...st.convs,[persp]:arr},typing:{...st.typing,[convId]:false}};});
+    },1950);
+  }
+  _reply(persp,text,kind){
+    if(kind==='viewing')return 'Potwierdzam termin: '+text+'. Do zobaczenia! 🙂';
+    if(kind==='attach')return 'Dziękuję, właśnie otworzyłem(am) załącznik.';
+    const t=String(text).toLowerCase();
+    if(/negocj|cena|cen|zł/.test(t))return persp==='buyer'?'Cena jest w niewielkim stopniu do negocjacji — proponuję wrócić do tematu po oglądaniu.':'Rozumiem. Czy rozważyłby Pan/Pani 700 000 zł?';
+    if(/ogląd|obejrz|termin|spotk|weekend/.test(t))return 'Chętnie pokażę mieszkanie. Pasuje środa 17:00 albo sobota 11:00?';
+    if(/dostęp|aktualn|wolne/.test(t))return 'Tak, mieszkanie jest nadal dostępne 🙂';
+    if(/opłat|czynsz|koszt|miesię/.test(t))return 'Czynsz administracyjny to ok. 800 zł/mc wraz z zaliczkami na media.';
+    if(/rzut|zdjęc|zdjec|plan|metr/.test(t))return 'Jasne, prześlę rzut i dodatkowe zdjęcia jeszcze dziś.';
+    return persp==='buyer'?'Dziękuję za wiadomość! Odpiszę ze szczegółami najszybciej, jak to możliwe.':'Dziękuję, czekam na więcej informacji 🙂';
+  }
+  msgScrollRef=(el)=>{this._msgScroll=el;};
+  componentDidUpdate(){ if(this._msgScroll){ this._msgScroll.scrollTop=this._msgScroll.scrollHeight; } }
+
+  messagesVM(){
+    const s=this.state; const compact=s.device==='mobile'; const persp=s.msgPersp; const layoutB=s.msgLayout==='B';
+    const convs=s.convs[persp]||[];
+    const active=convs.find(c=>c.id===s.activeConv)||null;
+    const seg=(a)=>`border:none;border-radius:999px;padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer;background:${a?'#fff':'transparent'};color:${a?'#C8553D':'#a8957f'};box-shadow:${a?'0 2px 6px -3px rgba(80,50,40,.4)':'none'};white-space:nowrap;`;
+    const convList=convs.map(c=>{
+      const last=c.messages[c.messages.length-1];
+      const preview=last?((last.from==='me'?'Ty: ':'')+(last.kind==='viewing'?'📅 Propozycja terminu':last.kind==='attach'?'📎 Załącznik':last.text)):'Rozpocznij rozmowę';
+      const on=c.id===s.activeConv; const l=this.LISTINGS.find(x=>x.id===c.listingId);
+      return {id:c.id,name:c.party.name,avatar:c.party.name.charAt(0),avatarBg:c.party.avatarBg,online:c.party.online,
+        listingMeta:l?(this.fmt(l.price)+' zł'+(l.type==='wynajmij'?'/mc':'')+' · '+l.dist):'',
+        preview,time:last?last.time:'',unread:c.unread>0,unreadText:c.unread>0?String(c.unread):'',
+        onClick:()=>this.openConv(c.id),
+        rowStyle:`display:flex;gap:11px;padding:12px;cursor:pointer;border-radius:14px;background:${on?'#F4EADD':'transparent'};border:1px solid ${on?'#ecd9c3':'transparent'};`};
+    });
+    const hasActive=!!active; let th=null,messages=[],typing=false,pinned=null,templates=[];
+    if(active){
+      const l=this.LISTINGS.find(x=>x.id===active.listingId); typing=!!s.typing[active.id];
+      th={name:active.party.name,avatar:active.party.name.charAt(0),avatarBg:active.party.avatarBg,online:active.party.online,
+        statusText:typing?'pisze…':(active.party.online?'aktywny(a) teraz':'aktywny(a) '+active.party.lastSeen),sub:active.party.sub};
+      pinned=l?{bg:`linear-gradient(135deg,${l.grad[0]},${l.grad[1]})`,priceText:this.fmt(l.price)+' zł'+(l.type==='wynajmij'?'/mc':''),
+        ppmText:this.fmt(this.ppm2(l))+' zł/m²',meta:`${l.rooms} pok · ${l.area} m² · ${l.dist}`,onOpen:()=>this.openDetail(l.id)}:{};
+      messages=active.messages.map(mm=>{
+        const mine=mm.from==='me'; const kind=mm.kind||'text';
+        const base={id:mm.id,mine,text:mm.text,time:mm.time,
+          isViewing:kind==='viewing',isAttach:kind==='attach',isText:kind==='text',
+          tick:mine?(mm.read?'✓✓':'✓'):'',tickColor:mine?(mm.read?'#9fd3b4':'rgba(255,255,255,.55)'):'transparent',
+          metaColor:mine&&kind==='text'?'rgba(255,255,255,.72)':'#a8957f',
+          rowStyle:`display:flex;justify-content:${mine?'flex-end':'flex-start'};`};
+        if(kind==='viewing')base.bubbleStyle=`max-width:80%;background:#fff;border:1px solid ${mine?'#e3c9bd':'#d6e1d2'};border-radius:16px;padding:12px 14px;`;
+        else if(kind==='attach')base.bubbleStyle=`max-width:74%;background:${mine?'#C8553D':'#fff'};border:1px solid ${mine?'#C8553D':'#f0e6da'};border-radius:16px;padding:8px;`;
+        else base.bubbleStyle=`max-width:75%;${mine?'background:#C8553D;color:#fff;':'background:#fff;color:#33271D;border:1px solid #f0e6da;'}border-radius:16px;border-bottom-${mine?'right':'left'}-radius:5px;padding:10px 13px;font-size:14px;line-height:1.45;box-shadow:0 4px 14px -11px rgba(80,50,40,.4);`;
+        return base;
+      });
+      const tdefs=persp==='buyer'
+        ?['Czy mieszkanie jest nadal dostępne?','Czy cena jest do negocjacji?','Jakie są opłaty miesięczne?','Czy mogę umówić oglądanie?']
+        :['Tak, mieszkanie jest dostępne 🙂','Cena jest lekko do negocjacji','Zapraszam na oglądanie','Prześlę rzut i więcej zdjęć'];
+      templates=tdefs.map(t=>({text:t,onClick:()=>this.sendText(active.id,t)}));
+    }
+    let shell;
+    if(compact)shell='display:block;height:560px;';
+    else if(layoutB)shell='display:grid;grid-template-columns:300px 1fr 320px;height:calc(100vh - 124px);';
+    else shell='display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 124px);';
+    const showConvList=!compact||!hasActive; const showThread=!compact||hasActive;
+    const showOfferPanel=layoutB&&!compact&&hasActive; const pinnedInThread=(!layoutB||compact)&&hasActive;
+    return {
+      isMessages:s.screen==='messages',
+      msgBuyerStyle:seg(persp==='buyer'),msgSellerStyle:seg(persp==='seller'),
+      msgLayoutAStyle:seg(!layoutB),msgLayoutBStyle:seg(layoutB),
+      setMsgBuyer:()=>this.setMsgPersp('buyer'),setMsgSeller:()=>this.setMsgPersp('seller'),
+      setLayoutA:()=>this.setState({msgLayout:'A'}),setLayoutB:()=>this.setState({msgLayout:'B'}),
+      msgShellStyle:shell,convList,msgConvCountText:convs.length+' rozm.',
+      showConvList,showThread,showOfferPanel,pinnedInThread,
+      msgHasActive:hasActive,msgEmpty:showThread&&!hasActive,
+      msgEmptyHint:'Wybierz rozmowę z listy, aby zobaczyć wiadomości i negocjować cenę.',
+      convListStyle:`padding:12px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:3px;${compact?'':'border-right:1px solid #ede1d2;'}`,
+      threadStyle:'display:flex;flex-direction:column;height:100%;min-width:0;background:#FBF6EE;',
+      th:th||{},threadMessages:messages,threadTyping:typing,pinned:pinned||{},msgTemplates:templates,
+      draft:s.draft,onDraft:this.onDraft,onDraftKey:this.onComposerKey,msgScrollRef:this.msgScrollRef,
+      sendDraft:()=>this.sendText(this.state.activeConv,this.state.draft),
+      onAttach:this.attach,openViewing:()=>this.setState({showViewing:true}),
+      backToList:()=>this.setState({activeConv:null}),
+      msgBackStyle:`display:${compact?'grid':'none'};place-items:center;width:34px;height:34px;border-radius:999px;border:1px solid #ede1d2;background:#fff;color:#5c4d3f;font-size:18px;cursor:pointer;flex-shrink:0;`,
+      toggleConvMenu:()=>this.setState(v=>({showConvMenu:!v.showConvMenu})),showConvMenu:s.showConvMenu,
+      reportConv:()=>{this.setState({showConvMenu:false});this.toast('Zgłoszono rozmowę — dziękujemy za czujność');},
+      blockConv:()=>{this.setState({showConvMenu:false});this.toast('Użytkownik zablokowany');},
+      offerPanelStyle:'border-left:1px solid #ede1d2;padding:18px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:16px;background:#fff;',
+      showViewing:s.showViewing,closeViewing:()=>this.setState({showViewing:false}),
+      viewingSlots:this.SLOTS.map(sl=>({label:sl,onClick:()=>this.bookSlot(sl)})),
+    };
+  }
+
+  // ---------- render ----------
+  renderVals(){
+    const s=this.state;
+    const compact=s.device==='mobile';
+    const list=this.filtered();
+    const _allUnread=(s.convs.buyer.concat(s.convs.seller)).reduce((a,c)=>a+(c.unread||0),0);
+    const pmax=s.type==='kup'?s.priceMax:s.rentMax;
+    const activeFilters=(s.rooms.length?1:0)+(s.areaMin?1:0)+(s.market!=='any'?1:0)+s.amen.length+(s.onlyFair?1:0)+(s.iso?1:0)+(s.rect?1:0);
+
+    // chrome nav styles
+    const navBtn=(active)=>`background:transparent;border:none;font-family:'Hanken Grotesk',sans-serif;font-size:14px;font-weight:${active?700:600};color:${active?'#33271D':'#7a6c5d'};cursor:pointer;padding:6px 4px;border-bottom:2px solid ${active?'#C8553D':'transparent'};`;
+    const segBtn=(active)=>`border:none;border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer;background:${active?'#fff':'transparent'};color:${active?'#C8553D':'#a8957f'};box-shadow:${active?'0 2px 6px -3px rgba(80,50,40,.4)':'none'};`;
+    const chip=(active,extra='')=>`border:1px solid ${active?'#C8553D':'#ede1d2'};background:${active?'#C8553D':'#fff'};color:${active?'#fff':'#5c4d3f'};border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;${extra}`;
+    const chipSm=(active)=>`border:1px solid ${active?'#C8553D':'#ede1d2'};background:${active?'#C8553D':'#fff'};color:${active?'#fff':'#5c4d3f'};border-radius:999px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer;`;
+
+    // url state
+    const url=(()=>{const p=[s.type];if(s.q.trim())p.push('q='+encodeURIComponent(s.q.trim()));if(s.rooms.length)p.push('pok='+s.rooms.join(','));if(pmax<(s.type==='kup'?3000000:6000))p.push('max='+pmax);if(s.market!=='any')p.push('rynek='+s.market);if(s.amen.length)p.push(s.amen.join(','));if(s.onlyFair)p.push('uczciwa');if(s.iso)p.push('dojazd25');if(s.rect)p.push('obszar');if(s.sort!=='foryou')p.push('sort='+s.sort);return 'reals.pl/trojmiasto?'+p.join('&');})();
+
+    // detail vm
+    let d=null;
+    if(s.selectedId){const l=this.LISTINGS.find(x=>x.id===s.selectedId);if(l){const v=this.verdict(l);const g=this.avmGeom(l);const isFav=!!s.fav[l.id];
+      const pay=this.monthly(l.price), czynsz=Math.round(l.area*14), pcc=Math.round(l.price*0.02);
+      const costRows=l.type==='kup'?[
+        {label:'Szac. rata kredytu',value:this.fmt(pay)+' zł/mc',note:'20% wkładu, 25 lat, ~7,4% RRSO'},
+        {label:'Czynsz administracyjny',value:'~'+this.fmt(czynsz)+' zł/mc',note:'szacunek wg metrażu'},
+        {label:'PCC (rynek wtórny 2%)',value:l.market==='wtórny'?this.fmt(pcc)+' zł':'0 zł',note:'jednorazowo'},
+        {label:'Taksa notarialna + wpisy',value:'~6 000 zł',note:'jednorazowo'},
+      ]:[
+        {label:'Czynsz najmu',value:this.fmt(l.price)+' zł/mc',note:'do właściciela'},
+        {label:'Czynsz administracyjny',value:'~'+this.fmt(czynsz)+' zł/mc',note:'szacunek wg metrażu'},
+        {label:'Kaucja',value:this.fmt(l.price)+' zł',note:'jednorazowo, zwrotna'},
+      ];
+      costRows.forEach((r,i)=>r.style=`display:flex;justify-content:space-between;align-items:center;padding:12px 15px;${i?'border-top:1px solid #f3ece2;':''}`);
+      d={id:l.id,bg:`linear-gradient(135deg,${l.grad[0]},${l.grad[1]})`,
+        priceText:this.fmt(l.price)+' zł'+(l.type==='wynajmij'?'/mc':''), ppmText:this.fmt(this.ppm2(l))+' zł/m²',
+        quality:l.quality, fullMeta:`${l.rooms} pokoje · ${l.area} m² · ${l.floor===0?'parter':l.floor+' piętro'} · ${l.year} · rynek ${l.market}`,
+        dist:l.dist, city:l.city, fresh:l.fresh,
+        hasV:!!v, vColor:v?this.vColor(v):'#5c4d3f', vLabel:v?this.vLabel(v):'', vDot:v?this.vDot(v):'',
+        avmLeft:g.left, avmWidth:g.width, avmMark:g.mark, avmLowText:this.fmt(l.avmLow)+' zł', avmHighText:this.fmt(l.avmHigh)+' zł',
+        costRows,
+        hood:[
+          {icon:'🔇',label:'Poziom hałasu',value:l.noise},
+          {icon:'🚆',label:'Dojazd do centrum',value:l.commute+' min komunikacją'},
+          {icon:'🏫',label:'Szkoły w pobliżu',value:'★'.repeat(l.schools)+'☆'.repeat(5-l.schools)},
+          {icon:'🅿️',label:'Parking',value:l.amen.includes('parking')?'Miejsce w cenie':'Strefa miejska'},
+        ],
+        dedupTitle:l.sources.length>1?`To samo mieszkanie w ${l.sources.length} biurach — scalone w 1 ofertę`:'Oferta bezpośrednia — zweryfikowana',
+        sources:l.sources.map(n=>({name:n})),
+        favFill:isFav?'#C8553D':'none', favStroke:isFav?'#C8553D':'#33271D',
+        onFav:()=>this.toggleFav(l.id),
+      };
+    }}
+
+    // compare
+    const cmpL=this.LISTINGS.filter(l=>s.cmp.includes(l.id));
+    const cmpItems=cmpL.map(l=>({id:l.id,bg:`linear-gradient(135deg,${l.grad[0]},${l.grad[1]})`,dist:l.dist}));
+    const rowDefs=[
+      ['Cena',l=>this.fmt(l.price)+' zł',null],
+      ['Cena/m²',l=>this.fmt(this.ppm2(l))+' zł',null],
+      ['Wycena REALS',l=>{const v=this.verdict(l);return v?this.vLabel(v):'—';},l=>{const v=this.verdict(l);return v?this.vColor(v):'#33271D';}],
+      ['Pokoje / metraż',l=>`${l.rooms} pok · ${l.area} m²`,null],
+      ['Piętro · rok',l=>`${l.floor===0?'parter':l.floor+' p.'} · ${l.year}`,null],
+      ['Rynek',l=>l.market,null],
+      ['Dojazd do centrum',l=>l.commute+' min',null],
+      ['Szac. rata/mc',l=>l.type==='kup'?this.fmt(this.monthly(l.price))+' zł':this.fmt(l.price)+' zł',null],
+      ['Jakość ogłoszenia',l=>l.quality+'/100',null],
+    ];
+    const cmpRows=rowDefs.map(([label,fn,colFn],ri)=>({label,trStyle:`background:${ri%2?'#fff':'transparent'};`,cells:cmpL.map(l=>({text:fn(l),color:colFn?colFn(l):'#33271D'}))}));
+
+    // landing data
+    const featured=this.LISTINGS.filter(l=>l.type==='kup').slice(0,6).map(l=>this.cardVM(l));
+    const trustStats=[{big:'0',label:'duplikatów — jedno mieszkanie, jedno ogłoszenie'},{big:'100%',label:'ofert z cenami'},{big:'100%',label:'zadowolonych użytkowników'}];
+    const pillars=[
+      {icon:'🧭',tint:'#f3ddd4',title:'Przejrzystość i czytelność',body:'To samo mieszkanie z 4 biur scalamy w jedną ofertę. Każda oznaczona datą aktywności — koniec z martwymi linkami.'},
+      {icon:'⚡',tint:'#e7ede4',title:'Wygoda wyszukiwania',body:'Filtry w adresie URL (nigdy się nie resetują), mapa zsynchronizowana z listą, izochrony dojazdu i wyniki w mgnieniu oka.'},
+      {icon:'⚖️',tint:'#f5e7cc',title:'Przejrzysta cena',body:'Przy każdej ofercie pokazujemy, czy cena jest w normie, poniżej czy powyżej rynku — z przedziałem i pewnością.'},
+    ];
+
+    // onboarding
+    const onbTitles=['Gdzie szukasz?','Jaki budżet?','Ile pokoi?','Co jest must-have?'];
+    const onbSubs=['Wybierz dzielnice, które Cię interesują — możesz zaznaczyć kilka.','Pokażemy oferty mieszczące się w Twoich możliwościach.','Zaznacz preferowaną liczbę pokoi.','Wskaż udogodnienia, bez których ani rusz.'];
+    const areaChips=Object.keys(this.DIST).map(name=>({name:name.replace(/^(Gdańsk|Gdynia) /,m=>m),onClick:()=>this.toggleOnbArea(name),style:chip(s.onbAreas.includes(name))}));
+    const roomChips=[1,2,3,4,5].map(n=>({label:n===5?'5+':n+' pok',onClick:()=>this.toggleOnbRoom(n),style:chip(s.onbRooms.includes(n))}));
+    const mustDefs=[['balkon','🌿'],['ogródek','🌳'],['parking','🅿️'],['winda','🛗'],['cisza','🔇'],['blisko centrum','🚆']];
+    const mustChips=mustDefs.map(([name,icon])=>({name,icon,onClick:()=>this.toggleOnbMust(name),style:chip(s.onbMusts.includes(name))}));
+
+    // sell
+    const sf=s.sellDone;
+    const sellFieldsDef=[['adres','Adres i lokalizacja','Gdańsk Wrzeszcz, ul. Grunwaldzka'],['metraz','Metraż i układ','58 m², 3 pokoje, 3 piętro'],['zdjecia','Zdjęcia','Dodaj min. 6 zdjęć — masz 4'],['rzut','Rzut mieszkania','Zwiększa zaufanie o 12%'],['opis','Opis (asystent AI)','Wygeneruj opis jednym kliknięciem']];
+    const sellFields=sellFieldsDef.map(([k,title,hint])=>({key:k,title,hint,onClick:()=>this.toggleSell(k),
+      dotBg:sf[k]?'#3F5142':'#f3ece2',dotColor:sf[k]?'#fff':'#a8957f',dotIcon:sf[k]?'✓':'+',
+      tag:sf[k]?'Gotowe':'Do zrobienia',tagColor:sf[k]?'#3F5142':'#C8553D',
+      rowStyle:`display:flex;align-items:center;gap:12px;padding:13px 4px;cursor:pointer;${k!=='adres'?'border-top:1px solid #f3ece2;':''}`}));
+    const sellScore=Math.round(30+Object.values(sf).filter(Boolean).length/5*55);
+    const sellTip=sf.zdjecia&&sf.rzut&&sf.opis?'Świetnie! Twoje ogłoszenie jest kompletne i wzbudzi zaufanie.':'Dodaj brakujące zdjęcia, rzut i opis AI, aby przekroczyć 80/100 i trafić wyżej w wynikach.';
+
+    // layout styles
+    const maxW=compact?'440px':'100%';
+    const shellStyle=compact
+      ? `width:420px;margin:18px auto;border:10px solid #2a2118;border-radius:42px;overflow:hidden;background:#FBF6EE;box-shadow:0 40px 90px -40px rgba(40,30,22,.7);min-height:760px;`
+      : `width:100%;background:#FBF6EE;`;
+    const splitStyle=compact?`display:block;`:`display:flex;max-width:1320px;margin:0 auto;`;
+    const listColStyle=compact
+      ? `padding:16px;display:flex;flex-direction:column;gap:12px;`
+      : `flex:1 1 50%;padding:18px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 168px);overflow-y:auto;`;
+    const mapColStyle=compact
+      ? `position:relative;height:420px;border-top:1px solid #ede1d2;`
+      : `flex:1 1 50%;position:relative;height:calc(100vh - 168px);position:sticky;top:168px;border-left:1px solid #ede1d2;`;
+    const showList=compact?!s.mobMap:true;
+    const showMap=compact?s.mobMap:true;
+
+    return {
+      rootRef:(el)=>{this._root=el;},
+      shellStyle,
+      // chrome
+      navStyle:compact?'display:none;':'display:flex;gap:20px;align-items:center;',
+      navHomeStyle:navBtn(s.screen==='landing'), navSearchStyle:navBtn(s.screen==='search'), navSellStyle:navBtn(s.screen==='sell'), navBizStyle:navBtn(s.screen==='business'),
+      goBiz:this.goBiz, ...this.bizVM(),
+      goMessages:this.goMessages, navMsgStyle:navBtn(s.screen==='messages'), ...this.messagesVM(),
+      msgUnreadBadge:_allUnread>0, msgUnreadText:String(_allUnread),
+      deskBtnStyle:segBtn(!compact), mobBtnStyle:segBtn(compact),
+      favCountText:Object.values(s.fav).filter(Boolean).length?`(${Object.values(s.fav).filter(Boolean).length})`:'',
+      goHome:this.goHome, goSearch:this.goSearch, goSell:this.goSell, goOnboarding:this.goOnboarding,
+      setDesktop:this.setDesktop, setMobile:this.setMobile,
+      // screen flags
+      isLanding:s.screen==='landing', isSearch:s.screen==='search', isSell:s.screen==='sell', isOnboarding:s.screen==='onboarding', isBiz:s.screen==='business',
+      // landing layout
+      heroPadStyle:compact?'padding:24px 18px 30px;':'padding:54px 22px 50px;max-width:1180px;margin:0 auto;',
+      heroGridStyle:compact?'display:block;':'display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;',
+      heroTitleStyle:`font-family:'Bricolage Grotesque',sans-serif;font-weight:800;color:#33271D;letter-spacing:-1.2px;line-height:1.02;margin:0 0 18px;font-size:${compact?'40px':'58px'};`,
+      heroArtStyle:compact?'display:none;':'display:flex;justify-content:center;',
+      trustInnerStyle:compact?'display:flex;flex-direction:column;gap:20px;padding:28px 22px;max-width:1180px;margin:0 auto;':'display:flex;gap:30px;padding:32px 22px;max-width:1180px;margin:0 auto;flex-wrap:wrap;',
+      trustStats,
+      pillarsPadStyle:compact?'padding:30px 18px;':'padding:56px 22px;max-width:1180px;margin:0 auto;',
+      pillarsGridStyle:compact?'display:flex;flex-direction:column;gap:14px;':'display:grid;grid-template-columns:repeat(3,1fr);gap:18px;',
+      pillars,
+      featPadStyle:compact?'padding:10px 18px 30px;':'padding:10px 22px 50px;max-width:1180px;margin:0 auto;',
+      featGridStyle:compact?'display:flex;flex-direction:column;gap:14px;':'display:grid;grid-template-columns:repeat(3,1fr);gap:18px;',
+      featured,
+      ctaPadStyle:compact?'padding:10px 18px 40px;':'padding:10px 22px 60px;max-width:1180px;margin:0 auto;',
+      ctaGridStyle:compact?'display:flex;flex-direction:column;gap:16px;':'display:grid;grid-template-columns:1fr 1fr;gap:20px;',
+      // onboarding
+      onbStepText:(s.onbStep+1)+' / 4', onbPct:(s.onbStep+1)/4*100,
+      onbTitle:onbTitles[s.onbStep], onbSub:onbSubs[s.onbStep],
+      onbIsAreas:s.onbStep===0, onbIsBudget:s.onbStep===1, onbIsRooms:s.onbStep===2, onbIsMusts:s.onbStep===3,
+      areaChips, roomChips, mustChips,
+      onbBudget:s.onbBudget, onbBudgetText:'do '+this.fmt(s.onbBudget)+' zł',
+      onbCanBack:s.onbStep>0, onbNextLabel:s.onbStep>=3?'Pokaż oferty →':'Dalej →',
+      onbBack:this.onbBack, onbNext:this.onbNext, onBudget:this.onBudget,
+      // search filters
+      type:s.type, q:s.q, sort:s.sort, areaMin:s.areaMin, iso:s.iso, showMore:s.showMore,
+      onQ:this.onQ, setKup:this.setKup, setWynajem:this.setWynajem, onPrice:this.onPrice, onArea:this.onArea, onSort:this.onSort, toggleMore:this.toggleMore,
+      kupBtnStyle:segBtn(s.type==='kup'), wynBtnStyle:segBtn(s.type==='wynajmij'),
+      priceRangeMax:s.type==='kup'?3000000:6000, priceStep:s.type==='kup'?50000:100, priceVal:pmax, priceLabel:this.fmt(pmax)+' zł',
+      areaLabel:s.areaMin+' m²',
+      roomFilterChips:[1,2,3,4].map(n=>({label:(n===4?'4+':n)+' pok',onClick:()=>this.toggleRoom(n),style:chipSm(s.rooms.includes(n))})),
+      moreBtnStyle:`display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;border:1px solid ${activeFilters?'#C8553D':'#ede1d2'};background:${s.showMore?'#f3ddd4':'#fff'};color:${activeFilters?'#C8553D':'#5c4d3f'};font-weight:700;font-size:13px;cursor:pointer;`,
+      moreCountText:activeFilters?'· '+activeFilters:'',
+      countText:list.length+' ofert',
+      amenChips:['balkon','ogródek','parking','winda'].map(a=>({name:a,onClick:()=>this.toggleAmen(a),style:chip(s.amen.includes(a))})),
+      setMktWtorny:this.setMktWtorny, setMktPierwotny:this.setMktPierwotny, toggleFair:this.toggleFair,
+      wtornyStyle:chip(s.market==='wtórny'), pierwotnyStyle:chip(s.market==='pierwotny'),
+      fairStyle:`border:1px solid ${s.onlyFair?'#2E7D4F':'#ede1d2'};background:${s.onlyFair?'#2E7D4F':'#fff'};color:${s.onlyFair?'#fff':'#5c4d3f'};border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;`,
+      urlState:url, copyColor:s.copied?'#2E7D4F':'#C8553D', copyLabel:s.copied?'✓ Skopiowano':'⧉ Kopiuj',
+      copyUrl:this.copyUrl, saveSearch:this.saveSearch,
+      // split / list / map
+      splitStyle, listColStyle, mapColStyle, showList, showMap,
+      isEmpty:list.length===0, cards:list.map(l=>this.cardVM(l)), pins:list.map(l=>this.pinVM(l)),
+      mapRef:this.mapRef, onMapDown:this.onMapDown, onMapMove:this.onMapMove, onMapUp:this.onMapUp,
+      mapCursor:s.drawing?'crosshair':'default',
+      drawBtnStyle:`display:flex;align-items:center;gap:7px;padding:9px 13px;border-radius:999px;border:1px solid ${s.drawing?'#C8553D':'#ede1d2'};background:${s.drawing?'#C8553D':'rgba(255,255,255,.95)'};color:${s.drawing?'#fff':'#5c4d3f'};font-weight:700;font-size:12.5px;cursor:pointer;box-shadow:0 4px 14px -8px rgba(80,50,40,.4);`,
+      drawLabel:s.drawing?'Rysuj obszar na mapie…':'Rysuj obszar',
+      isoBtnStyle:`display:flex;align-items:center;gap:7px;padding:9px 13px;border-radius:999px;border:1px solid ${s.iso?'#C8553D':'#ede1d2'};background:${s.iso?'#C8553D':'rgba(255,255,255,.95)'};color:${s.iso?'#fff':'#5c4d3f'};font-weight:700;font-size:12.5px;cursor:pointer;box-shadow:0 4px 14px -8px rgba(80,50,40,.4);`,
+      toggleDraw:this.toggleDraw, toggleIso:this.toggleIso, clearRect:this.clearRect,
+      hasRect:!!s.rect, rectX:s.rect?s.rect.x:0, rectY:s.rect?s.rect.y:0, rectW:s.rect?s.rect.w:0, rectH:s.rect?s.rect.h:0,
+      showMobToggle:compact, toggleMobMap:this.toggleMobMap, mobMapLabel:s.mobMap?'☰ Pokaż listę':'🗺 Pokaż mapę',
+      // sell
+      sellPadStyle:compact?'padding:26px 18px 50px;':'padding:44px 22px 60px;max-width:1100px;margin:0 auto;',
+      sellGridStyle:compact?'display:flex;flex-direction:column;gap:24px;':'display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:start;',
+      sellFields, sellScore, sellTip, publish:this.publish,
+      // detail
+      hasDetail:!!d, d:d||{}, closeDetail:this.closeDetail, stop:this.stop, shareDetail:this.shareDetail, bookViewing:this.bookViewing, contactAgent:this.contactAgent,
+      detailPanelStyle:`width:min(560px,100%);background:#FBF6EE;height:100%;display:flex;flex-direction:column;box-shadow:-20px 0 60px -30px rgba(0,0,0,.6);`,
+      // compare
+      showCmp:s.showCmp, cmpItems, cmpRows, closeCmp:this.closeCmp,
+      hasCmp:s.cmp.length>0, cmpCountText:s.cmp.length+(s.cmp.length===1?' oferta':' oferty'),
+      openCmp:this.openCmp, clearCmp:this.clearCmp,
+      cmpOpenStyle:`padding:8px 16px;border-radius:10px;border:none;background:${s.cmp.length<2?'#5c5048':'#C8553D'};color:#fff;font-weight:700;font-size:13.5px;cursor:${s.cmp.length<2?'default':'pointer'};`,
+      // toast
+      hasToast:!!s.toast, toast:s.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

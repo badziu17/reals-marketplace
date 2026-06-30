@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-canvas text-ink font-sans;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-heading text-ink;
+  }
+}
+
+@layer components {
+  /* App shell background — distinct from the outer canvas (see README:
+     "Tło aplikacji" #FBF6EE vs "Tło body / canvas" #EFE7DA). */
+  .app-shell {
+    @apply bg-bg-app min-h-screen;
+  }
+
+  /* Sticky header treatment per README:
+     background:rgba(251,246,238,.88); backdrop-filter:blur(12px);
+     border-bottom:1px solid #ede1d2 */
+  .chrome-header {
+    @apply sticky top-0 z-40 border-b border-line backdrop-blur-md;
+    background: rgba(251, 246, 238, 0.88);
+  }
+}
