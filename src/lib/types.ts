@@ -15,7 +15,7 @@ export interface District {
   lat: number | null; // geokodowanie realne (iteracja 5)
   lng: number | null;
   fairPrice: number;  // zł/m² — baza dla AVM
-  commute: number;    // minuty do centrum
+  commute: string | null; // minuty dojazdu jako string (np. "38")
   noise: string;      // "Cicho" | "Średnio" | "Głośno"
   schools: number;    // 1–5
 }

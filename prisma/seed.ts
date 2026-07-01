@@ -37,20 +37,20 @@ function freshDate(gi: number): Date {
 
 // ---------- Dzielnice (DIST z prototypu) ----------
 const DISTRICTS = [
-  { code: "gdynia-oksywie",       name: "Gdynia Oksywie",        city: "GDYNIA" as const, cx: 158, cy: 58,  fairPrice: 9800,  commute: 38, noise: "Cicho",   schools: 3 },
-  { code: "gdynia-cisowa",        name: "Gdynia Cisowa",          city: "GDYNIA" as const, cx: 92,  cy: 92,  fairPrice: 8600,  commute: 42, noise: "Cicho",   schools: 3 },
-  { code: "gdynia-srodmiescie",   name: "Gdynia Śródmieście",     city: "GDYNIA" as const, cx: 188, cy: 112, fairPrice: 14900, commute: 30, noise: "Średnio", schools: 4 },
-  { code: "gdynia-dzialki-lesne", name: "Gdynia Działki Leśne",   city: "GDYNIA" as const, cx: 150, cy: 132, fairPrice: 13600, commute: 31, noise: "Średnio", schools: 4 },
-  { code: "gdynia-orlowo",        name: "Gdynia Orłowo",          city: "GDYNIA" as const, cx: 232, cy: 178, fairPrice: 18200, commute: 28, noise: "Cicho",   schools: 5 },
-  { code: "sopot",                name: "Sopot",                  city: "SOPOT"  as const, cx: 224, cy: 252, fairPrice: 23500, commute: 22, noise: "Średnio", schools: 5 },
-  { code: "gdansk-zabianka",      name: "Gdańsk Żabianka",        city: "GDANSK" as const, cx: 236, cy: 300, fairPrice: 17400, commute: 20, noise: "Cicho",   schools: 5 },
-  { code: "gdansk-oliwa",         name: "Gdańsk Oliwa",           city: "GDANSK" as const, cx: 188, cy: 318, fairPrice: 16900, commute: 18, noise: "Cicho",   schools: 5 },
-  { code: "gdansk-przymorze",     name: "Gdańsk Przymorze",       city: "GDANSK" as const, cx: 242, cy: 342, fairPrice: 16300, commute: 19, noise: "Średnio", schools: 4 },
-  { code: "gdansk-wrzeszcz",      name: "Gdańsk Wrzeszcz",        city: "GDANSK" as const, cx: 196, cy: 384, fairPrice: 15600, commute: 12, noise: "Głośno",  schools: 4 },
-  { code: "gdansk-nowy-port",     name: "Gdańsk Nowy Port",       city: "GDANSK" as const, cx: 246, cy: 416, fairPrice: 10400, commute: 24, noise: "Średnio", schools: 3 },
-  { code: "gdansk-srodmiescie",   name: "Gdańsk Śródmieście",     city: "GDANSK" as const, cx: 210, cy: 462, fairPrice: 17800, commute: 4,  noise: "Głośno",  schools: 4 },
-  { code: "gdansk-jasien",        name: "Gdańsk Jasień",          city: "GDANSK" as const, cx: 120, cy: 470, fairPrice: 13900, commute: 22, noise: "Cicho",   schools: 4 },
-  { code: "gdansk-orunia",        name: "Gdańsk Orunia",          city: "GDANSK" as const, cx: 176, cy: 526, fairPrice: 11200, commute: 16, noise: "Średnio", schools: 3 },
+  { code: "gdynia-oksywie",       name: "Gdynia Oksywie",        city: "GDYNIA" as const, cx: 158, cy: 58,  fairPrice: 9800,  commute: "38", noise: "Cicho",   schools: 3 },
+  { code: "gdynia-cisowa",        name: "Gdynia Cisowa",          city: "GDYNIA" as const, cx: 92,  cy: 92,  fairPrice: 8600,  commute: "42", noise: "Cicho",   schools: 3 },
+  { code: "gdynia-srodmiescie",   name: "Gdynia Śródmieście",     city: "GDYNIA" as const, cx: 188, cy: 112, fairPrice: 14900, commute: "30", noise: "Średnio", schools: 4 },
+  { code: "gdynia-dzialki-lesne", name: "Gdynia Działki Leśne",   city: "GDYNIA" as const, cx: 150, cy: 132, fairPrice: 13600, commute: "31", noise: "Średnio", schools: 4 },
+  { code: "gdynia-orlowo",        name: "Gdynia Orłowo",          city: "GDYNIA" as const, cx: 232, cy: 178, fairPrice: 18200, commute: "28", noise: "Cicho",   schools: 5 },
+  { code: "sopot",                name: "Sopot",                  city: "SOPOT"  as const, cx: 224, cy: 252, fairPrice: 23500, commute: "22", noise: "Średnio", schools: 5 },
+  { code: "gdansk-zabianka",      name: "Gdańsk Żabianka",        city: "GDANSK" as const, cx: 236, cy: 300, fairPrice: 17400, commute: "20", noise: "Cicho",   schools: 5 },
+  { code: "gdansk-oliwa",         name: "Gdańsk Oliwa",           city: "GDANSK" as const, cx: 188, cy: 318, fairPrice: 16900, commute: "18", noise: "Cicho",   schools: 5 },
+  { code: "gdansk-przymorze",     name: "Gdańsk Przymorze",       city: "GDANSK" as const, cx: 242, cy: 342, fairPrice: 16300, commute: "19", noise: "Średnio", schools: 4 },
+  { code: "gdansk-wrzeszcz",      name: "Gdańsk Wrzeszcz",        city: "GDANSK" as const, cx: 196, cy: 384, fairPrice: 15600, commute: "12", noise: "Głośno",  schools: 4 },
+  { code: "gdansk-nowy-port",     name: "Gdańsk Nowy Port",       city: "GDANSK" as const, cx: 246, cy: 416, fairPrice: 10400, commute: "24", noise: "Średnio", schools: 3 },
+  { code: "gdansk-srodmiescie",   name: "Gdańsk Śródmieście",     city: "GDANSK" as const, cx: 210, cy: 462, fairPrice: 17800, commute: "4",  noise: "Głośno",  schools: 4 },
+  { code: "gdansk-jasien",        name: "Gdańsk Jasień",          city: "GDANSK" as const, cx: 120, cy: 470, fairPrice: 13900, commute: "22", noise: "Cicho",   schools: 4 },
+  { code: "gdansk-orunia",        name: "Gdańsk Orunia",          city: "GDANSK" as const, cx: 176, cy: 526, fairPrice: 11200, commute: "16", noise: "Średnio", schools: 3 },
 ];
 
 // ---------- Oferty raw (z prototypu) ----------
