@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Hanken_Grotesk, Space_Mono } from "next/font/google";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import "@/styles/globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -36,7 +37,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pl" className={`${bricolage.variable} ${hanken.variable} ${spaceMono.variable}`}>
-      <body className="app-shell">{children}</body>
+      <body className="app-shell">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
