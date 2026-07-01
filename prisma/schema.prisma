@@ -113,9 +113,9 @@ model District {
   lat       Float? // geokodowanie realne — iteracja 5
   lng       Float?
   fairPrice Int // zł/m², bazowa wartość dla AVM
-  commute   String? // opis dojazdu
-  noise     Int? // 0-100
-  schools   Int? // 0-100
+  commute   Int?    // minuty dojazdu do centrum
+  noise     String? // "Cicho" | "Średnio" | "Głośno"
+  schools   Int?    // 1–5
 
   listings Listing[]
 }
