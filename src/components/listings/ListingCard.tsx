@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { IconHeart } from "@/components/ui/icons";
 import { formatPrice, getVerdict, VERDICT_LABEL, VERDICT_COLOR } from "@/lib/domain";
 
@@ -30,6 +29,12 @@ interface ListingCardProps {
   isFaved?: boolean;
   onCompare?: (id: string) => void;
   isCompared?: boolean;
+  /** Linkowanie hover z mapą (iteracja 7) — podświetlenie karty przy hover na pinie i odwrotnie. */
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  highlighted?: boolean;
+  /** Otwiera Detail overlay (iteracja 8). Zastępuje dawny <Link> — ten gubił aktywne filtry w URL. */
+  onOpen?: (id: string) => void;
 }
 
 // Gradient jako CSS background
@@ -48,14 +53,39 @@ function freshLabel(fresh: string): string {
   return `${days} dni temu`;
 }
 
-export function ListingCard({ listing, onFav, isFaved, onCompare, isCompared }: ListingCardProps) {
+export function ListingCard({
+  listing,
+  onFav,
+  isFaved,
+  onCompare,
+  isCompared,
+  onMouseEnter,
+  onMouseLeave,
+  highlighted,
+  onOpen,
+}: ListingCardProps) {
   const verdict = getVerdict(listing as unknown as Parameters<typeof getVerdict>[0]);
   const priceLabel = listing.type === "WYNAJEM"
     ? `${formatPrice(listing.price)} zł/mies.`
     : `${formatPrice(listing.price)} zł`;
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-card bg-card shadow-card transition hover:shadow-hero animate-rl-fade">
+    <div
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onClick={() => onOpen?.(listing.id)}
+      role={onOpen ? "button" : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (onOpen && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onOpen(listing.id);
+        }
+      }}
+      className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-card bg-card shadow-card transition hover:shadow-hero animate-rl-fade ${
+        highlighted ? "ring-2 ring-terracotta shadow-hero" : ""
+      }`}
+    >
       {/* Zdjęcie / gradient placeholder */}
       <div
         className="relative h-44 w-full"
@@ -84,7 +114,7 @@ export function ListingCard({ listing, onFav, isFaved, onCompare, isCompared }: 
         {/* Serce (fav) */}
         {onFav && (
           <button
-            onClick={(e) => { e.preventDefault(); onFav(listing.id); }}
+            onClick={(e) => { e.stopPropagation(); onFav(listing.id); }}
             className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card/80 text-ink-muted transition hover:text-terracotta"
           >
             <IconHeart filled={isFaved} className="h-4 w-4" />
@@ -128,7 +158,7 @@ export function ListingCard({ listing, onFav, isFaved, onCompare, isCompared }: 
 
         {onCompare && (
           <button
-            onClick={(e) => { e.preventDefault(); onCompare(listing.id); }}
+            onClick={(e) => { e.stopPropagation(); onCompare(listing.id); }}
             className={`relative z-10 mt-1 self-start rounded-pill px-2.5 py-1 text-xs font-bold transition ${
               isCompared
                 ? "bg-terracotta text-white"
@@ -139,9 +169,6 @@ export function ListingCard({ listing, onFav, isFaved, onCompare, isCompared }: 
           </button>
         )}
       </div>
-
-      {/* Cały kafel jest linkiem do detalu (iteracja 8) */}
-      <Link href={`/search?id=${listing.id}`} className="absolute inset-0 z-0" aria-label={`Oferta: ${listing.district.name}`} />
     </div>
   );
 }

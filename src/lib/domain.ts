@@ -70,6 +70,33 @@ export function formatPrice(n: number): string {
 }
 
 /**
+ * Geometria paska AVM (Detail overlay) — pozycja przedziału avmLow–avmHigh
+ * i markera aktualnej ceny na skali 0–100%, z 10% marginesem po obu stronach
+ * przedziału (żeby pasek nie zaczynał/kończył się dokładnie na krawędzi).
+ * Zgodne z prototypem (`avmGeom`).
+ */
+export function avmGeom(listing: {
+  price: number;
+  avmLow: number | null;
+  avmHigh: number | null;
+}): { left: number; width: number; mark: number } | null {
+  if (listing.avmLow == null || listing.avmHigh == null) return null;
+  const lo = listing.avmLow * 0.9;
+  const hi = listing.avmHigh * 1.1;
+  const pos = (x: number) => Math.max(0, Math.min(100, ((x - lo) / (hi - lo)) * 100));
+  const left = pos(listing.avmLow);
+  return { left, width: pos(listing.avmHigh) - left, mark: pos(listing.price) };
+}
+
+/**
+ * Gwiazdki dla oceny szkół w okolicy (1–5) — używane w Detail.
+ */
+export function schoolStars(schools: number): string {
+  const filled = Math.max(0, Math.min(5, Math.round(schools)));
+  return "★".repeat(filled) + "☆".repeat(5 - filled);
+}
+
+/**
  * Jakość oferty (0–99) — zgodna z algorytmem z prototypu.
  * Używana przy seedowaniu i przy dodawaniu nowych ofert.
  */

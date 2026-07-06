@@ -2,15 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { ListingCard } from "@/components/listings/ListingCard";
 import { FilterBar } from "./FilterBar";
+import { SearchResults } from "./SearchResults";
 import { CompareTray } from "./CompareTray";
+import { DetailSheet } from "@/components/detail/DetailSheet";
 import { filtersToParams, type SearchFilters } from "@/lib/searchFilters";
 import type { Listing } from "@/lib/types";
 
 const FAV_KEY = "reals-fav";
 const CMP_KEY = "reals-cmp";
 const RESULTS_LIMIT = 24;
+const HEADER_HEIGHT = 57; // wysokość Chrome — patrz komentarz przy top-[57px] w FilterBar
 
 interface SearchClientProps {
   // Wyliczone po stronie serwera (page.tsx) z prawdziwego `searchParams`
@@ -19,9 +21,11 @@ interface SearchClientProps {
   // stronie klienta hooki routera (useSearchParams + Suspense) potrafiły
   // dawać migawkę o ułamek inną niż to, co realnie wyrenderował serwer.
   initialFilters: SearchFilters;
+  /** id z `?id=` w URL — otwiera Detail od razu przy wejściu (linkowalne). */
+  initialSelectedId: string | null;
 }
 
-export function SearchClient({ initialFilters }: SearchClientProps) {
+export function SearchClient({ initialFilters, initialSelectedId }: SearchClientProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -34,6 +38,14 @@ export function SearchClient({ initialFilters }: SearchClientProps) {
   const [fav, setFav] = useState<Record<string, boolean>>({});
   const [cmp, setCmp] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState(false);
+
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
+  // Ref, żeby debounced efekt filtrów (patrz niżej) zawsze widział AKTUALNY
+  // selectedId w momencie, gdy jego setTimeout faktycznie odpala — nie ten
+  // sprzed 300ms z domknięcia — inaczej otwarcie Detail tuż po zmianie
+  // filtra mogłoby zostać nadpisane (usunięte z URL) przez spóźniony efekt.
+  const selectedIdRef = useRef(selectedId);
+  selectedIdRef.current = selectedId;
 
   // Origin jest znany tylko w przeglądarce. Czytanie `window` wprost w renderze
   // (np. `typeof window !== "undefined" ? window.location.origin : ""`) daje
@@ -50,6 +62,22 @@ export function SearchClient({ initialFilters }: SearchClientProps) {
   const [copied, setCopied] = useState(false);
   const toastTimeout = useRef<ReturnType<typeof setTimeout>>();
   const copyTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  // Wysokość paska filtrów mierzona na żywo (zmienia się np. gdy otwarty jest
+  // panel "Więcej filtrów") — potrzebna, żeby kolumna mapy/listy w
+  // SearchResults poprawnie wyliczyła sticky top / max-height, zamiast na
+  // sztywno zgadywać jedną wartość z prototypu.
+  const filterBarWrapRef = useRef<HTMLDivElement>(null);
+  const [filterBarHeight, setFilterBarHeight] = useState(0);
+  useEffect(() => {
+    const el = filterBarWrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      setFilterBarHeight(entries[0].contentRect.height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // --- Fav / Compare — na razie stan lokalny (localStorage). ---
   // Trwały zapis per-użytkownik (SavedListing w bazie) wraca wraz z auth-gated
@@ -106,6 +134,7 @@ export function SearchClient({ initialFilters }: SearchClientProps) {
 
     const handle = setTimeout(() => {
       const params = filtersToParams(filters);
+      if (selectedIdRef.current) params.set("id", selectedIdRef.current);
 
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
@@ -140,6 +169,27 @@ export function SearchClient({ initialFilters }: SearchClientProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
+  // Detail (?id=) -> URL, natychmiast (bez debounce'u filtrów — to osobne,
+  // dyskretne zdarzenie otwórz/zamknij, nie coś co użytkownik "przeciąga").
+  useEffect(() => {
+    const params = filtersToParams(filters);
+    if (selectedId) params.set("id", selectedId);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    // filters/pathname/router celowo pominięte — patrz komentarz przy efekcie filtrów wyżej
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
+
+  function openDetail(id: string) {
+    setSelectedId(id);
+  }
+
+  function closeDetail() {
+    setSelectedId(null);
+  }
+
+  const detailListing = listings.find((l) => l.id === selectedId);
+
   const shareUrl = origin
     ? `${origin}${pathname}${(() => {
         const qs = filtersToParams(filters).toString();
@@ -162,45 +212,40 @@ export function SearchClient({ initialFilters }: SearchClientProps) {
 
   return (
     <div className="min-h-screen">
-      <FilterBar
-        filters={filters}
-        onChange={setFilters}
-        resultCount={total}
-        loading={loading && initialLoad}
-        shareUrl={shareUrl}
-        copied={copied}
-        onCopyLink={handleCopyLink}
-        onSaveAlert={() => showToast("Zapisywanie alertów pojawi się w kolejnej iteracji ✨")}
+      <div ref={filterBarWrapRef}>
+        <FilterBar
+          filters={filters}
+          onChange={setFilters}
+          resultCount={total}
+          loading={loading && initialLoad}
+          shareUrl={shareUrl}
+          copied={copied}
+          onCopyLink={handleCopyLink}
+          onSaveAlert={() => showToast("Zapisywanie alertów pojawi się w kolejnej iteracji ✨")}
+        />
+      </div>
+
+      <SearchResults
+        listings={listings}
+        loading={loading}
+        initialLoad={initialLoad}
+        fav={fav}
+        onToggleFav={toggleFav}
+        cmp={cmp}
+        onToggleCmp={toggleCmp}
+        onOpenDetail={openDetail}
+        stickyOffset={HEADER_HEIGHT + filterBarHeight}
       />
 
-      <div className="mx-auto max-w-7xl px-[22px] py-6">
-        {initialLoad && loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-[300px] animate-pulse rounded-card bg-card" />
-            ))}
-          </div>
-        ) : listings.length === 0 ? (
-          <div className="py-20 text-center text-ink-faint">
-            <div className="text-4xl">🏚️</div>
-            <p className="mt-3 font-semibold text-ink-muted">Brak ofert dla tych filtrów.</p>
-            <p className="mt-1 text-sm">Filtry zostają zapisane — niczego nie tracisz.</p>
-          </div>
-        ) : (
-          <div className={`grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 ${loading ? "opacity-60" : ""}`}>
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                onFav={toggleFav}
-                isFaved={!!fav[listing.id]}
-                onCompare={toggleCmp}
-                isCompared={cmp.includes(listing.id)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      <DetailSheet
+        listingId={selectedId}
+        knownListing={detailListing}
+        isFaved={!!(selectedId && fav[selectedId])}
+        onToggleFav={toggleFav}
+        onClose={closeDetail}
+        onBookViewing={() => showToast("Umawianie oglądań pojawi się w iteracji 9 ✨")}
+        onContact={() => showToast("Wiadomości pojawią się w iteracji 13 ✨")}
+      />
 
       <CompareTray count={cmp.length} onOpen={handleOpenCompare} onClear={() => setCmp([])} />
 

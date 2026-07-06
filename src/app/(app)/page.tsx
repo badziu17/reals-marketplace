@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ListingCard } from "@/components/listings/ListingCard";
+import { ListingCardLink } from "@/components/listings/ListingCardLink";
 
 // Trust strip dane z prototypu
 const TRUST_STATS = [
@@ -210,7 +210,7 @@ export default async function HomePage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
             {featured.map((listing: any) => (
-              <ListingCard key={listing.id} listing={listing} />
+              <ListingCardLink key={listing.id} listing={listing} />
             ))}
           </div>
         ) : (
