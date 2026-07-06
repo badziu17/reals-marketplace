@@ -1,35 +1,23 @@
-import { MapPreview } from "@/components/map/MapPreview";
+import { SearchClient } from "@/components/search/SearchClient";
+import { parseFilters } from "@/lib/searchFilters";
 
-async function getListings() {
-  try {
-    const res = await fetch(
-      `${process.env.NEXTAUTH_URL ?? "http://localhost:3000"}/api/listings?limit=21`,
-      { next: { revalidate: 30 } }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.listings ?? [];
-  } catch {
-    return [];
+// Mapa (iteracja 5) wraca w iteracji 7 jako split widok obok listy —
+// na razie /search to w pełni ekran listy z filtrami (kryterium iteracji 6).
+//
+// Filtry startowe liczymy TU, po stronie serwera, z prawdziwego `searchParams`
+// requestu — nie klienckim `useSearchParams()`. Ten drugi w połączeniu z
+// Suspense potrafił dać stan o ułamek inny niż to, co wyrenderował serwer,
+// co objawiało się błędem "Hydration failed" na /search po twardym odświeżeniu
+// strony z aktywnymi filtrami w URL.
+export default function SearchPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (typeof value === "string") params.set(key, value);
   }
-}
 
-export default async function SearchPage() {
-  const listings = await getListings();
-  return (
-    <div className="mx-auto max-w-7xl px-[22px] py-8">
-      <div className="mb-6">
-        <span className="rounded-pill bg-chip-warm px-3 py-1 font-mono text-badge-mono uppercase tracking-[0.5px] text-ink-muted">
-          Iteracja 5 — MapLibre
-        </span>
-        <h1 className="mt-3 font-display text-section-h2 tracking-heading text-ink">
-          Mapa Trójmiasta
-        </h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          {listings.length} ofert na mapie · pinezki kolorowane werdyktem AVM
-        </p>
-      </div>
-      <MapPreview listings={listings} />
-    </div>
-  );
+  return <SearchClient initialFilters={parseFilters(params)} />;
 }

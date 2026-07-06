@@ -5,6 +5,7 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
+    const q = searchParams.get("q");
     const type = searchParams.get("type");
     const priceMax = searchParams.get("priceMax");
     const rentMax = searchParams.get("rentMax");
@@ -44,6 +45,9 @@ export async function GET(req: Request) {
 
     if (district) where.districtCode = district;
     if (featured) where.featured = true;
+    if (q && q.trim()) {
+      where.district = { name: { contains: q.trim(), mode: "insensitive" } };
+    }
 
     let orderBy: Record<string, string> = { quality: "desc" };
     if (sort === "price_asc") orderBy = { price: "asc" };

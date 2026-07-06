@@ -22,12 +22,14 @@ interface ListingCardProps {
     district: {
       name: string;
       commute: string | null;
-      noise: number | null;
+      noise: string | null;
       schools: number | null;
     };
   };
   onFav?: (id: string) => void;
   isFaved?: boolean;
+  onCompare?: (id: string) => void;
+  isCompared?: boolean;
 }
 
 // Gradient jako CSS background
@@ -46,7 +48,7 @@ function freshLabel(fresh: string): string {
   return `${days} dni temu`;
 }
 
-export function ListingCard({ listing, onFav, isFaved }: ListingCardProps) {
+export function ListingCard({ listing, onFav, isFaved, onCompare, isCompared }: ListingCardProps) {
   const verdict = getVerdict(listing as unknown as Parameters<typeof getVerdict>[0]);
   const priceLabel = listing.type === "WYNAJEM"
     ? `${formatPrice(listing.price)} zł/mies.`
@@ -83,7 +85,7 @@ export function ListingCard({ listing, onFav, isFaved }: ListingCardProps) {
         {onFav && (
           <button
             onClick={(e) => { e.preventDefault(); onFav(listing.id); }}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-card/80 text-ink-muted transition hover:text-terracotta"
+            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card/80 text-ink-muted transition hover:text-terracotta"
           >
             <IconHeart filled={isFaved} className="h-4 w-4" />
           </button>
@@ -123,10 +125,23 @@ export function ListingCard({ listing, onFav, isFaved }: ListingCardProps) {
             </span>
           )}
         </div>
+
+        {onCompare && (
+          <button
+            onClick={(e) => { e.preventDefault(); onCompare(listing.id); }}
+            className={`relative z-10 mt-1 self-start rounded-pill px-2.5 py-1 text-xs font-bold transition ${
+              isCompared
+                ? "bg-terracotta text-white"
+                : "border border-line bg-card text-ink-muted hover:border-terracotta/50"
+            }`}
+          >
+            {isCompared ? "✓ W porównaniu" : "+ Porównaj"}
+          </button>
+        )}
       </div>
 
       {/* Cały kafel jest linkiem do detalu (iteracja 8) */}
-      <Link href={`/search?id=${listing.id}`} className="absolute inset-0" aria-label={`Oferta: ${listing.district.name}`} />
+      <Link href={`/search?id=${listing.id}`} className="absolute inset-0 z-0" aria-label={`Oferta: ${listing.district.name}`} />
     </div>
   );
 }
