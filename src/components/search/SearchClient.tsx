@@ -6,6 +6,8 @@ import { FilterBar } from "./FilterBar";
 import { SearchResults } from "./SearchResults";
 import { CompareTray } from "./CompareTray";
 import { DetailSheet } from "@/components/detail/DetailSheet";
+import { ViewingPickerModal } from "@/components/detail/ViewingPickerModal";
+import { CompareModal } from "@/components/compare/CompareModal";
 import { filtersToParams, type SearchFilters } from "@/lib/searchFilters";
 import type { Listing } from "@/lib/types";
 
@@ -40,6 +42,8 @@ export function SearchClient({ initialFilters, initialSelectedId }: SearchClient
   const [hydrated, setHydrated] = useState(false);
 
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId);
+  const [viewingOpen, setViewingOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   // Ref, żeby debounced efekt filtrów (patrz niżej) zawsze widział AKTUALNY
   // selectedId w momencie, gdy jego setTimeout faktycznie odpala — nie ten
   // sprzed 300ms z domknięcia — inaczej otwarcie Detail tuż po zmianie
@@ -207,7 +211,7 @@ export function SearchClient({ initialFilters, initialSelectedId }: SearchClient
 
   function handleOpenCompare() {
     if (cmp.length < 2) return;
-    showToast("Porównywarka pojawi się w iteracji 9 — wybór zostaje zapisany ✨");
+    setCompareOpen(true);
   }
 
   return (
@@ -243,9 +247,31 @@ export function SearchClient({ initialFilters, initialSelectedId }: SearchClient
         isFaved={!!(selectedId && fav[selectedId])}
         onToggleFav={toggleFav}
         onClose={closeDetail}
-        onBookViewing={() => showToast("Umawianie oglądań pojawi się w iteracji 9 ✨")}
+        onBookViewing={() => setViewingOpen(true)}
         onContact={() => showToast("Wiadomości pojawią się w iteracji 13 ✨")}
       />
+
+      <ViewingPickerModal
+        open={viewingOpen}
+        onClose={() => setViewingOpen(false)}
+        onPickSlot={(slot) => {
+          setViewingOpen(false);
+          showToast(`Wysłano prośbę o termin: ${slot} ✨`);
+        }}
+      />
+
+      {compareOpen && (
+        <CompareModal
+          cmpIds={cmp}
+          knownListings={listings}
+          onClose={() => setCompareOpen(false)}
+          onRemove={toggleCmp}
+          onOpenDetail={(id) => {
+            setCompareOpen(false);
+            openDetail(id);
+          }}
+        />
+      )}
 
       <CompareTray count={cmp.length} onOpen={handleOpenCompare} onClear={() => setCmp([])} />
 
