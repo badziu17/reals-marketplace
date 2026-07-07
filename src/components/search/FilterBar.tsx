@@ -143,6 +143,16 @@ export function FilterBar({
           Więcej{extraCount > 0 ? ` (${extraCount})` : ""}
         </button>
 
+        {filters.districts.length > 0 && (
+          <button
+            onClick={() => patch({ districts: [] })}
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-pill border border-terracotta bg-terracotta px-[14px] py-2 text-sm font-bold text-white"
+            title="Wyczyść wybór dzielnic"
+          >
+            📍 {filters.districts.length} {filters.districts.length === 1 ? "dzielnica" : "dzielnice"} ✕
+          </button>
+        )}
+
         <div className="flex-1" />
 
         <span className="flex items-center gap-1.5 whitespace-nowrap font-mono text-[13px] font-bold text-terracotta">
@@ -225,6 +235,13 @@ export function FilterBar({
             className={`rounded-pill px-[14px] py-2 text-sm font-bold transition ${chipClass(filters.onlyFair)}`}
           >
             ✓ tylko uczciwa cena
+          </button>
+
+          <button
+            onClick={() => patch({ quietOnly: !filters.quietOnly })}
+            className={`rounded-pill px-[14px] py-2 text-sm font-bold transition ${chipClass(filters.quietOnly)}`}
+          >
+            🔇 tylko ciche dzielnice
           </button>
         </div>
       )}

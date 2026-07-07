@@ -22,6 +22,10 @@ export interface SearchFilters {
   amenities: string[];
   onlyFair: boolean;
   sort: SortOption;
+  /** District.code[] — z onboardingu (iteracja 10) lub przyszłego pickera dzielnic. */
+  districts: string[];
+  /** District.noise === "Cicho" — z onboardingu (iteracja 10). */
+  quietOnly: boolean;
 }
 
 export const DEFAULT_FILTERS: SearchFilters = {
@@ -35,6 +39,8 @@ export const DEFAULT_FILTERS: SearchFilters = {
   amenities: [],
   onlyFair: false,
   sort: "foryou",
+  districts: [],
+  quietOnly: false,
 };
 
 const SORT_OPTIONS: SortOption[] = ["foryou", "price_asc", "price_desc", "area_desc", "fresh"];
@@ -61,6 +67,7 @@ export function parseFilters(params: ParamsLike): SearchFilters {
     marketParam === "PIERWOTNY" || marketParam === "WTORNY" ? marketParam : "any";
 
   const amenities = (params.get("amenities") ?? "").split(",").filter(Boolean);
+  const districts = (params.get("districts") ?? "").split(",").filter(Boolean);
 
   const sortParam = params.get("sort") as SortOption | null;
   const sort: SortOption = sortParam && SORT_OPTIONS.includes(sortParam) ? sortParam : "foryou";
@@ -76,6 +83,8 @@ export function parseFilters(params: ParamsLike): SearchFilters {
     amenities,
     onlyFair: params.get("onlyFair") === "true",
     sort,
+    districts,
+    quietOnly: params.get("quietOnly") === "true",
   };
 }
 
@@ -104,6 +113,8 @@ export function filtersToParams(f: SearchFilters): URLSearchParams {
   if (f.amenities.length) p.set("amenities", [...f.amenities].sort().join(","));
   if (f.onlyFair) p.set("onlyFair", "true");
   if (f.sort !== "foryou") p.set("sort", f.sort);
+  if (f.districts.length) p.set("districts", [...f.districts].sort().join(","));
+  if (f.quietOnly) p.set("quietOnly", "true");
   return p;
 }
 
@@ -114,6 +125,7 @@ export function moreFiltersCount(f: SearchFilters): number {
   if (f.market !== "any") n += 1;
   n += f.amenities.length;
   if (f.onlyFair) n += 1;
+  if (f.quietOnly) n += 1;
   return n;
 }
 

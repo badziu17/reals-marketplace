@@ -15,6 +15,8 @@ export async function GET(req: Request) {
     const amenitiesParam = searchParams.get("amenities");
     const onlyFair = searchParams.get("onlyFair") === "true";
     const district = searchParams.get("district");
+    const districtsParam = searchParams.get("districts");
+    const quietOnly = searchParams.get("quietOnly") === "true";
     const featured = searchParams.get("featured") === "true";
     const sort = searchParams.get("sort") ?? "foryou";
     const limit = Math.min(parseInt(searchParams.get("limit") ?? "50"), 100);
@@ -43,11 +45,22 @@ export async function GET(req: Request) {
       if (amenities.length > 0) where.amenities = { hasEvery: amenities };
     }
 
-    if (district) where.districtCode = district;
-    if (featured) where.featured = true;
-    if (q && q.trim()) {
-      where.district = { name: { contains: q.trim(), mode: "insensitive" } };
+    if (districtsParam) {
+      const codes = districtsParam.split(",").filter(Boolean);
+      if (codes.length > 0) where.districtCode = { in: codes };
+    } else if (district) {
+      where.districtCode = district;
     }
+    if (featured) where.featured = true;
+
+    // Wszystkie warunki na relacji `district` scalone w JEDEN obiekt — q
+    // (wyszukiwarka tekstowa) i quietOnly (onboarding, iteracja 10) muszą
+    // móc współistnieć, a osobne przypisania do where.district nadpisywałyby
+    // się nawzajem.
+    const districtWhere: Record<string, unknown> = {};
+    if (q && q.trim()) districtWhere.name = { contains: q.trim(), mode: "insensitive" };
+    if (quietOnly) districtWhere.noise = "Cicho";
+    if (Object.keys(districtWhere).length > 0) where.district = districtWhere;
 
     let orderBy: Record<string, string> = { quality: "desc" };
     if (sort === "price_asc") orderBy = { price: "asc" };
