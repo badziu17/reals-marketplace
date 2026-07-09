@@ -70,6 +70,21 @@ export function formatPrice(n: number): string {
 }
 
 /**
+ * Zakres AVM z fairPrice dzielnicy — dokładnie ta sama formuła co w seed.ts
+ * (fairPrice * area, ±6%), użyta tu dla ogłoszeń wystawianych przez
+ * użytkowników (iteracja 11 — Sell), żeby liczyć się tak samo jak dane seed.
+ */
+export function computeAvmRange(
+  fairPricePerM2: number,
+  area: number,
+  type: "KUP" | "WYNAJEM"
+): { avmLow: number | null; avmHigh: number | null } {
+  if (type !== "KUP") return { avmLow: null, avmHigh: null };
+  const fairTotal = fairPricePerM2 * area;
+  return { avmLow: Math.round(fairTotal * 0.94), avmHigh: Math.round(fairTotal * 1.06) };
+}
+
+/**
  * Geometria paska AVM (Detail overlay) — pozycja przedziału avmLow–avmHigh
  * i markera aktualnej ceny na skali 0–100%, z 10% marginesem po obu stronach
  * przedziału (żeby pasek nie zaczynał/kończył się dokładnie na krawędzi).

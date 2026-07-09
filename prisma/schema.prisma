@@ -133,6 +133,7 @@ model Listing {
   type         OfferType
   price        Int
   amenities    String[]
+  description  String? // iteracja 11 (Sell) — opis wygenerowany asystentem lub wpisany ręcznie
   sources      String[] // biura pośredniczące — wejście dla dedup
   avmLow       Int?
   avmHigh      Int?
