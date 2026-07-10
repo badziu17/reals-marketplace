@@ -134,6 +134,13 @@ model Listing {
   price        Int
   amenities    String[]
   description  String? // iteracja 11 (Sell) — opis wygenerowany asystentem lub wpisany ręcznie
+  // Zdjęcia/rzut jako data URL (zmniejszone i skompresowane po stronie
+  // klienta przed zapisem — patrz src/lib/imageCompress.ts). MVP bez
+  // zewnętrznego storage (S3/Cloudinary): OK dla kilku lekkich zdjęć,
+  // NIE docelowe rozwiązanie przy większej skali — do wymiany na prawdziwy
+  // blob storage, jeśli wolumen zdjęć urośnie.
+  photos       String[]
+  floorPlan    String?
   sources      String[] // biura pośredniczące — wejście dla dedup
   avmLow       Int?
   avmHigh      Int?

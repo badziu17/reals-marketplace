@@ -27,6 +27,11 @@ interface MapProps {
   onDrawComplete?: (bounds: AreaBounds) => void;
   /** Aktualnie zaznaczony obszar (rysowany jako warstwa GeoJSON). */
   areaBounds?: AreaBounds | null;
+  /** Tryb wskazania punktu odniesienia — klik na mapie ustawia [lng, lat]. */
+  pickingPoint?: boolean;
+  onPointPick?: (point: [number, number]) => void;
+  /** Aktualnie ustawiony punkt odniesienia (renderowany jako odrębny pin). */
+  customPoint?: [number, number] | null;
 }
 
 const TROJMIASTO_CENTER: [number, number] = [18.57, 54.40];
@@ -62,10 +67,14 @@ export function Map({
   drawingEnabled,
   onDrawComplete,
   areaBounds,
+  pickingPoint,
+  onPointPick,
+  customPoint,
 }: MapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markersRef = useRef<Record<string, Marker>>({});
+  const pointMarkerRef = useRef<Marker | null>(null);
   const loadedRef = useRef(false);
 
   // Refy na "żywe" wartości potrzebne wewnątrz zdarzeń DOM (mouseenter itp.),
@@ -267,6 +276,47 @@ export function Map({
       if (overlay) overlay.remove();
     };
   }, [drawingEnabled, onDrawComplete]);
+
+  // Wskazanie punktu odniesienia — zwykły klik (nie przeciąganie jak przy
+  // rysowaniu obszaru), więc wystarczy natywny handler kliknięcia MapLibre.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !pickingPoint) return;
+
+    const canvasContainer = map.getCanvasContainer();
+    const prevCursor = canvasContainer.style.cursor;
+    canvasContainer.style.cursor = "crosshair";
+
+    function onClick(e: { lngLat: { lng: number; lat: number } }) {
+      onPointPick?.([e.lngLat.lng, e.lngLat.lat]);
+    }
+
+    map.on("click", onClick);
+    return () => {
+      map.off("click", onClick);
+      canvasContainer.style.cursor = prevCursor;
+    };
+  }, [pickingPoint, onPointPick]);
+
+  // Marker punktu odniesienia — osobny, wyraźnie inny styl niż piny ofert.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loadedRef.current) return;
+
+    if (pointMarkerRef.current) {
+      pointMarkerRef.current.remove();
+      pointMarkerRef.current = null;
+    }
+    if (!customPoint) return;
+
+    import("maplibre-gl").then((ml) => {
+      if (!mapRef.current) return;
+      const el = document.createElement("div");
+      el.style.cssText =
+        "width:22px;height:22px;border-radius:50% 50% 50% 0;background:#33271D;border:2px solid white;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,.35);";
+      pointMarkerRef.current = new ml.Marker({ element: el, anchor: "bottom" }).setLngLat(customPoint).addTo(map);
+    });
+  }, [customPoint]);
 
   return <div ref={containerRef} className={className ?? "h-full w-full"} style={{ minHeight: 400 }} />;
 }

@@ -44,6 +44,8 @@ interface DraftBody {
   amenities?: string[];
   gradient?: string;
   description?: string;
+  photos?: string[];
+  floorPlan?: string | null;
   publish?: boolean;
 }
 
@@ -85,6 +87,8 @@ export async function POST(req: Request) {
       amenities: body.amenities ?? [],
       gradient: body.gradient ?? null,
       description: body.description ?? null,
+      photos: body.photos ?? [],
+      floorPlan: body.floorPlan ?? null,
     };
 
     if (body.publish) {

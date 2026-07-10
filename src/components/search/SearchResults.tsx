@@ -5,6 +5,7 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { formatPrice } from "@/lib/domain";
 import { useIsMobileSearch } from "@/lib/useDevice";
 import { Map, type AreaBounds } from "@/components/map/Map";
+import { haversineKm } from "@/lib/geo";
 import type { Listing } from "@/lib/types";
 
 function MapPlaceholder() {
@@ -69,6 +70,19 @@ export function SearchResults({
   const [areaBounds, setAreaBounds] = useState<AreaBounds | null>(null);
   const [isoOnly, setIsoOnly] = useState(false);
 
+  // Własny punkt odniesienia (poprawka po iteracji 11) — zamiast sztywnego
+  // "centrum" można wskazać dowolne miejsce na mapie i filtrować po
+  // odległości od niego. Świadomie w km, nie w minutach — bez prawdziwego
+  // API tras nie da się uczciwie policzyć czasu dojazdu do dowolnego punktu.
+  const [pickingPoint, setPickingPoint] = useState(false);
+  const [customPoint, setCustomPoint] = useState<[number, number] | null>(null);
+  const [radiusKm, setRadiusKm] = useState(3);
+
+  const handlePointPick = useCallback((point: [number, number]) => {
+    setCustomPoint(point);
+    setPickingPoint(false);
+  }, []);
+
   const handleDrawComplete = useCallback((bounds: AreaBounds) => {
     setAreaBounds(bounds);
     setDrawingEnabled(false);
@@ -88,12 +102,17 @@ export function SearchResults({
         if (l.district.lat == null || l.district.lng == null) return false;
         if (!isWithinBounds(l.district.lat, l.district.lng, areaBounds)) return false;
       }
+      if (customPoint) {
+        if (l.district.lat == null || l.district.lng == null) return false;
+        const [lng, lat] = customPoint;
+        if (haversineKm(l.district.lat, l.district.lng, lat, lng) > radiusKm) return false;
+      }
       return true;
     });
-  }, [listings, isoOnly, areaBounds]);
+  }, [listings, isoOnly, areaBounds, customPoint, radiusKm]);
 
   const selectedPin = visibleListings.find((l) => l.id === selectedPinId);
-  const refinedActive = isoOnly || !!areaBounds;
+  const refinedActive = isoOnly || !!areaBounds || !!customPoint;
 
   const listPane = (
     <div
@@ -153,6 +172,9 @@ export function SearchResults({
           drawingEnabled={drawingEnabled}
           onDrawComplete={handleDrawComplete}
           areaBounds={areaBounds}
+          pickingPoint={pickingPoint}
+          onPointPick={handlePointPick}
+          customPoint={customPoint}
           className="h-full w-full"
         />
       ) : (
@@ -181,6 +203,43 @@ export function SearchResults({
         >
           🚆 ≤{ISO_MAX_MINUTES} min do centrum
         </button>
+
+        <button
+          onClick={() => setPickingPoint((v) => !v)}
+          className={`flex items-center gap-1.5 rounded-pill border px-3 py-2 text-xs font-bold shadow-card transition ${
+            pickingPoint
+              ? "border-terracotta bg-terracotta text-white"
+              : "border-line bg-card/95 text-ink-secondary hover:border-terracotta/50"
+          }`}
+        >
+          📍 {pickingPoint ? "Kliknij na mapie…" : customPoint ? "Zmień punkt" : "Wybierz punkt"}
+        </button>
+
+        {customPoint && (
+          <div className="flex flex-col gap-1.5 rounded-md border border-line bg-card/95 px-3 py-2 shadow-card">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-bold text-ink-secondary">≤{radiusKm} km od punktu</span>
+              <button
+                onClick={() => setCustomPoint(null)}
+                aria-label="Usuń punkt odniesienia"
+                className="text-ink-faint hover:text-terracotta"
+              >
+                ✕
+              </button>
+            </div>
+            <input
+              type="range"
+              min={0.5}
+              max={15}
+              step={0.5}
+              value={radiusKm}
+              onChange={(e) => setRadiusKm(Number(e.target.value))}
+              className="w-[140px] accent-terracotta"
+              aria-label="Promień od wybranego punktu"
+            />
+          </div>
+        )}
+
         {areaBounds && (
           <button
             onClick={() => setAreaBounds(null)}

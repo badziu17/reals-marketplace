@@ -32,6 +32,9 @@ export interface Listing {
   type: OfferType;
   price: number;
   amenities: string[];
+  description: string | null;
+  photos: string[];
+  floorPlan: string | null;
   sources: string[];
   avmLow: number | null;
   avmHigh: number | null;

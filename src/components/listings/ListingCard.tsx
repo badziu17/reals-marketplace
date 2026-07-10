@@ -17,6 +17,7 @@ interface ListingCardProps {
     avmHigh: number | null;
     fresh: string;
     gradient: string | null;
+    photos?: string[];
     quality: number;
     district: {
       name: string;
@@ -86,19 +87,25 @@ export function ListingCard({
         highlighted ? "ring-2 ring-terracotta shadow-hero" : ""
       }`}
     >
-      {/* Zdjęcie / gradient placeholder */}
+      {/* Zdjęcie (jeśli dodano w Sell) / gradient placeholder */}
       <div
         className="relative h-44 w-full"
-        style={{ background: gradientBg(listing.gradient) }}
+        style={
+          listing.photos?.[0]
+            ? { backgroundImage: `url(${listing.photos[0]})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : { background: gradientBg(listing.gradient) }
+        }
       >
-        {/* Tekstura */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(135deg, rgba(255,255,255,.07) 0 14px, transparent 14px 28px)",
-          }}
-        />
+        {/* Tekstura — tylko na placeholderze, prawdziwe zdjęcie jej nie potrzebuje */}
+        {!listing.photos?.[0] && (
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(135deg, rgba(255,255,255,.07) 0 14px, transparent 14px 28px)",
+            }}
+          />
+        )}
 
         {/* Badge werdyktu AVM */}
         {verdict && (

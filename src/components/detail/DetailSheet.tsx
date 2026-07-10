@@ -209,10 +209,24 @@ function DetailContent({
     },
   ];
 
+  const [activePhoto, setActivePhoto] = useState(0);
+  const hasPhotos = listing.photos.length > 0;
+
   return (
     <>
-      {/* Hero / galeria (placeholder — prawdziwe zdjęcia to osobny temat od modelu danych) */}
-      <div className="relative h-[300px] shrink-0" style={{ background: gradientBg(listing.gradient) }}>
+      {/* Hero / galeria — prawdziwe zdjęcia (iteracja 11), gradient jako fallback */}
+      <div
+        className="relative h-[300px] shrink-0"
+        style={
+          hasPhotos
+            ? {
+                backgroundImage: `url(${listing.photos[Math.min(activePhoto, listing.photos.length - 1)]})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : { background: gradientBg(listing.gradient) }
+        }
+      >
         <div
           className="absolute inset-0 opacity-[.16]"
           style={{ backgroundImage: "radial-gradient(circle at 75% 15%, #fff 0, transparent 50%)" }}
@@ -240,9 +254,27 @@ function DetailContent({
             {copied ? "✓" : "↗"}
           </button>
         </div>
-        <span className="absolute bottom-3.5 left-4 rounded-pill bg-black/30 px-2.5 py-1 font-mono text-[10px] text-white/85">
-          galeria · 3D · wirtualny spacer
-        </span>
+
+        {hasPhotos ? (
+          listing.photos.length > 1 && (
+            <div className="absolute bottom-3.5 left-4 flex gap-1.5">
+              {listing.photos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActivePhoto(i)}
+                  aria-label={`Zdjęcie ${i + 1}`}
+                  className={`h-1.5 rounded-pill transition-all ${
+                    i === activePhoto ? "w-5 bg-white" : "w-1.5 bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          )
+        ) : (
+          <span className="absolute bottom-3.5 left-4 rounded-pill bg-black/30 px-2.5 py-1 font-mono text-[10px] text-white/85">
+            brak zdjęć — okładka
+          </span>
+        )}
       </div>
 
       {/* Treść (scrollowalna) */}
@@ -290,6 +322,10 @@ function DetailContent({
               <span>{formatPrice(listing.avmHigh ?? 0)} zł</span>
             </div>
           </div>
+        )}
+
+        {listing.description && (
+          <p className="mt-[18px] text-[14px] leading-relaxed text-ink-secondary">{listing.description}</p>
         )}
 
         <h3 className="mb-2.5 mt-6 font-display text-[19px] font-bold text-ink">Koszt całkowity</h3>

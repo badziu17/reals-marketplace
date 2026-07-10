@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { formatPrice, computeAvmRange } from "@/lib/domain";
 import { generateListingDescription } from "@/lib/sellDescription";
+import { compressImageToDataUrl } from "@/lib/imageCompress";
 
 interface DistrictOption {
   code: string;
@@ -33,7 +34,8 @@ const GRADIENTS = [
   "#5B7E78-#33504b",
 ];
 
-const AMENITY_OPTIONS = ["balkon", "ogródek", "parking", "winda"] as const;
+const AMENITY_PRESETS = ["balkon", "ogródek", "parking", "winda"] as const;
+const MAX_PHOTOS = 6;
 
 interface FormState {
   districtCode: string;
@@ -47,8 +49,8 @@ interface FormState {
   amenities: string[];
   gradient: string;
   description: string;
-  // UI-only — patrz komentarz przy sekcji "Rzut mieszkania" niżej.
-  hasFloorPlan: boolean;
+  photos: string[];
+  floorPlan: string | null;
 }
 
 const EMPTY_FORM: FormState = {
@@ -63,7 +65,8 @@ const EMPTY_FORM: FormState = {
   amenities: [],
   gradient: GRADIENTS[0],
   description: "",
-  hasFloorPlan: false,
+  photos: [],
+  floorPlan: null,
 };
 
 function toPayload(f: FormState, publish: boolean) {
@@ -79,6 +82,8 @@ function toPayload(f: FormState, publish: boolean) {
     amenities: f.amenities,
     gradient: f.gradient,
     description: f.description || undefined,
+    photos: f.photos,
+    floorPlan: f.floorPlan,
     publish,
   };
 }
@@ -90,6 +95,11 @@ export function SellWizard() {
   const [myListings, setMyListings] = useState<MyListing[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [customAmenity, setCustomAmenity] = useState("");
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [planBusy, setPlanBusy] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/districts")
@@ -118,7 +128,8 @@ export function SellWizard() {
             amenities: d.amenities ?? [],
             gradient: d.gradient ?? GRADIENTS[0],
             description: d.description ?? "",
-            hasFloorPlan: false,
+            photos: d.photos ?? [],
+            floorPlan: d.floorPlan ?? null,
           });
         }
       })
@@ -149,11 +160,66 @@ export function SellWizard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, loaded, status]);
 
+  async function handlePhotoFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setPhotoError(null);
+    const remaining = MAX_PHOTOS - form.photos.length;
+    if (remaining <= 0) {
+      setPhotoError(`Możesz dodać maksymalnie ${MAX_PHOTOS} zdjęć.`);
+      return;
+    }
+    const toProcess = Array.from(files).slice(0, remaining);
+    setPhotoBusy(true);
+    try {
+      const compressed = await Promise.all(toProcess.map((f) => compressImageToDataUrl(f)));
+      patch({ photos: [...form.photos, ...compressed] });
+    } catch {
+      setPhotoError("Nie udało się przetworzyć jednego ze zdjęć — spróbuj inny plik.");
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  function removePhoto(index: number) {
+    patch({ photos: form.photos.filter((_, i) => i !== index) });
+  }
+
+  async function handleFloorPlanFile(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    setPhotoError(null);
+    setPlanBusy(true);
+    try {
+      const dataUrl = await compressImageToDataUrl(file);
+      patch({ floorPlan: dataUrl });
+    } catch {
+      setPhotoError("Nie udało się przetworzyć pliku rzutu — spróbuj inny plik.");
+    } finally {
+      setPlanBusy(false);
+    }
+  }
+
+  function addCustomAmenity() {
+    const value = customAmenity.trim().toLowerCase();
+    if (!value || form.amenities.includes(value)) {
+      setCustomAmenity("");
+      return;
+    }
+    patch({ amenities: [...form.amenities, value] });
+    setCustomAmenity("");
+  }
+
+  function toggleAmenity(a: string) {
+    patch({
+      amenities: form.amenities.includes(a) ? form.amenities.filter((x) => x !== a) : [...form.amenities, a],
+    });
+  }
+
   const done = {
     adres: !!form.districtCode,
     metraz: form.rooms !== "" && form.area !== "" && form.price !== "",
-    zdjecia: !!form.gradient,
-    rzut: form.hasFloorPlan,
+    zdjecia: form.photos.length > 0,
+    rzut: !!form.floorPlan,
     opis: form.description.trim().length > 0,
   };
   const doneCount = Object.values(done).filter(Boolean).length;
@@ -186,21 +252,41 @@ export function SellWizard() {
   }
 
   const canPublish = done.adres && done.metraz;
+  const missingForPublish = [
+    !done.adres && "dzielnicę",
+    !done.metraz && "pokoje/metraż/cenę",
+  ].filter(Boolean) as string[];
 
   async function publish() {
     if (!canPublish) return;
     setSaving(true);
+    setPublishError(null);
     try {
       const res = await fetch("/api/sell/draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toPayload(form, true)),
       });
-      if (res.ok) {
-        const refreshed = await fetch("/api/sell/draft").then((r) => r.json());
-        setMyListings(refreshed.myListings ?? []);
-        setForm(EMPTY_FORM);
+
+      if (!res.ok) {
+        let message = `Nie udało się opublikować (błąd ${res.status}).`;
+        try {
+          const body = await res.json();
+          if (body?.error) message = body.error;
+        } catch {
+          // odpowiedź bez JSON-a — zostaw domyślny komunikat
+        }
+        setPublishError(message);
+        console.error("[Sell] publish failed:", res.status, message);
+        return;
       }
+
+      const refreshed = await fetch("/api/sell/draft").then((r) => r.json());
+      setMyListings(refreshed.myListings ?? []);
+      setForm(EMPTY_FORM);
+    } catch (err) {
+      setPublishError("Nie udało się połączyć z serwerem. Sprawdź połączenie i spróbuj ponownie.");
+      console.error("[Sell] publish network error:", err);
     } finally {
       setSaving(false);
     }
@@ -226,6 +312,7 @@ export function SellWizard() {
   }
 
   const [gradFrom, gradTo] = form.gradient.split("-");
+  const coverPhoto = form.photos[0] ?? null;
 
   return (
     <main className="mx-auto max-w-[1100px] px-[22px] py-11">
@@ -244,7 +331,7 @@ export function SellWizard() {
                 [
                   ["adres", "Adres i lokalizacja"],
                   ["metraz", "Metraż i cena"],
-                  ["zdjecia", "Zdjęcia (motyw)"],
+                  ["zdjecia", "Zdjęcia"],
                   ["rzut", "Rzut mieszkania"],
                   ["opis", "Opis"],
                 ] as const
@@ -331,72 +418,160 @@ export function SellWizard() {
                   span2
                 />
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {AMENITY_OPTIONS.map((a) => (
+
+              <div className="mt-3.5">
+                <span className="mb-2 block text-xs font-semibold text-ink-faint">Udogodnienia</span>
+                <div className="flex flex-wrap gap-2">
+                  {AMENITY_PRESETS.map((a) => (
+                    <button
+                      key={a}
+                      onClick={() => toggleAmenity(a)}
+                      className={`rounded-pill border px-3 py-1.5 text-xs font-bold capitalize ${
+                        form.amenities.includes(a)
+                          ? "border-terracotta bg-terracotta text-white"
+                          : "border-line bg-bg-app text-ink-secondary"
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                  {/* Udogodnienia spoza presetów (np. "klimatyzacja", "piwnica") */}
+                  {form.amenities
+                    .filter((a) => !AMENITY_PRESETS.includes(a as (typeof AMENITY_PRESETS)[number]))
+                    .map((a) => (
+                      <button
+                        key={a}
+                        onClick={() => toggleAmenity(a)}
+                        className="flex items-center gap-1.5 rounded-pill border border-terracotta bg-terracotta px-3 py-1.5 text-xs font-bold capitalize text-white"
+                      >
+                        {a} <span className="text-white/80">✕</span>
+                      </button>
+                    ))}
+                </div>
+                <div className="mt-2 flex gap-1.5">
+                  <input
+                    value={customAmenity}
+                    onChange={(e) => setCustomAmenity(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addCustomAmenity();
+                      }
+                    }}
+                    placeholder="Inne udogodnienie (np. klimatyzacja)…"
+                    className="flex-1 rounded-pill border border-line bg-bg-app px-3.5 py-2 text-xs text-ink outline-none focus:border-terracotta/60"
+                  />
                   <button
-                    key={a}
-                    onClick={() =>
-                      patch({
-                        amenities: form.amenities.includes(a)
-                          ? form.amenities.filter((x) => x !== a)
-                          : [...form.amenities, a],
-                      })
-                    }
-                    className={`rounded-pill border px-3 py-1.5 text-xs font-bold capitalize ${
-                      form.amenities.includes(a)
-                        ? "border-terracotta bg-terracotta text-white"
-                        : "border-line bg-bg-app text-ink-secondary"
-                    }`}
+                    onClick={addCustomAmenity}
+                    disabled={!customAmenity.trim()}
+                    className="rounded-pill border border-line bg-bg-app px-3.5 py-2 text-xs font-bold text-ink-secondary disabled:opacity-40"
                   >
-                    {a}
+                    + Dodaj
                   </button>
-                ))}
+                </div>
               </div>
             </div>
 
-            {/* Zdjęcia */}
+            {/* Zdjęcia — prawdziwy upload */}
             <div className="mb-5 border-t border-line-soft pt-5">
               <h3 className="mb-1 text-sm font-bold text-ink">🖼️ Zdjęcia</h3>
               <p className="mb-3 text-xs text-ink-faint">
-                Prawdziwy upload zdjęć to osobny temat od modelu danych — na razie wybierz motyw okładki, tak jak
-                wszystkie oferty w REALS.
+                Do {MAX_PHOTOS} zdjęć. Bez zewnętrznego hostingu (np. S3) zdjęcia trafiają wprost do bazy jako
+                skompresowane pliki — świetne na start, przy większej skali warto podłączyć prawdziwy storage.
               </p>
-              <div className="flex flex-wrap gap-2">
-                {GRADIENTS.map((g) => {
-                  const [from, to] = g.split("-");
-                  return (
+              <div className="flex flex-wrap gap-2.5">
+                {form.photos.map((src, i) => (
+                  <div key={i} className="group relative h-20 w-20 overflow-hidden rounded-md border border-line">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={`Zdjęcie ${i + 1}`} className="h-full w-full object-cover" />
                     <button
-                      key={g}
-                      onClick={() => patch({ gradient: g })}
-                      className={`h-9 w-9 rounded-full border-2 ${
-                        form.gradient === g ? "border-terracotta" : "border-transparent"
-                      }`}
-                      style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
-                      aria-label={`Motyw ${g}`}
+                      onClick={() => removePhoto(i)}
+                      aria-label="Usuń zdjęcie"
+                      className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink/70 text-[10px] text-white opacity-0 transition group-hover:opacity-100"
+                    >
+                      ✕
+                    </button>
+                    {i === 0 && (
+                      <span className="absolute bottom-0 left-0 right-0 bg-ink/60 py-0.5 text-center text-[9px] font-bold text-white">
+                        okładka
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {form.photos.length < MAX_PHOTOS && (
+                  <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-line text-ink-faint transition hover:border-terracotta hover:text-terracotta">
+                    <span className="text-lg leading-none">{photoBusy ? "…" : "+"}</span>
+                    <span className="text-[10px] font-semibold">{photoBusy ? "Wgrywam…" : "Dodaj"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      disabled={photoBusy}
+                      onChange={(e) => {
+                        void handlePhotoFiles(e.target.files);
+                        e.target.value = "";
+                      }}
                     />
-                  );
-                })}
+                  </label>
+                )}
               </div>
+
+              <div className="mt-3">
+                <span className="mb-2 block text-xs font-semibold text-ink-faint">
+                  Albo motyw okładki (gdy nie masz jeszcze zdjęć)
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {GRADIENTS.map((g) => {
+                    const [from, to] = g.split("-");
+                    return (
+                      <button
+                        key={g}
+                        onClick={() => patch({ gradient: g })}
+                        className={`h-8 w-8 rounded-full border-2 ${
+                          form.gradient === g ? "border-terracotta" : "border-transparent"
+                        }`}
+                        style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+                        aria-label={`Motyw ${g}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+              {photoError && <p className="mt-2 text-xs font-semibold text-terracotta">{photoError}</p>}
             </div>
 
-            {/* Rzut mieszkania */}
+            {/* Rzut mieszkania — prawdziwy upload */}
             <div className="mb-5 border-t border-line-soft pt-5">
               <h3 className="mb-1 text-sm font-bold text-ink">📐 Rzut mieszkania</h3>
-              <p className="mb-3 text-xs text-ink-faint">
-                Upload planu to też temat na osobną iterację (brak infrastruktury plików) — na razie zaznacz, jeśli
-                go masz przygotowany. Ta pozycja liczy się do wskaźnika jakości, ale nie jest jeszcze nigdzie
-                zapisywana poza tym formularzem.
-              </p>
-              <button
-                onClick={() => patch({ hasFloorPlan: !form.hasFloorPlan })}
-                className={`rounded-pill border px-4 py-2 text-sm font-bold ${
-                  form.hasFloorPlan
-                    ? "border-terracotta bg-terracotta text-white"
-                    : "border-line bg-bg-app text-ink-secondary"
-                }`}
-              >
-                {form.hasFloorPlan ? "✓ Mam rzut mieszkania" : "+ Dodałem rzut mieszkania"}
-              </button>
+              <p className="mb-3 text-xs text-ink-faint">Zdjęcie lub skan planu — zwiększa zaufanie kupujących.</p>
+              {form.floorPlan ? (
+                <div className="group relative h-24 w-24 overflow-hidden rounded-md border border-line">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={form.floorPlan} alt="Rzut mieszkania" className="h-full w-full object-cover" />
+                  <button
+                    onClick={() => patch({ floorPlan: null })}
+                    aria-label="Usuń rzut"
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink/70 text-[10px] text-white opacity-0 transition group-hover:opacity-100"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-pill border border-line bg-bg-app px-4 py-2 text-sm font-bold text-ink-secondary transition hover:border-terracotta hover:text-terracotta">
+                  {planBusy ? "Wgrywam…" : "+ Dodaj rzut mieszkania"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={planBusy}
+                    onChange={(e) => {
+                      void handleFloorPlanFile(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              )}
             </div>
 
             {/* Opis */}
@@ -439,8 +614,17 @@ export function SellWizard() {
                 {saving ? "Zapisywanie…" : "Opublikuj za darmo"}
               </button>
             </div>
-            {loaded && saving && (
-              <div className="mt-2 text-right text-[11px] text-ink-faint">Zapisywanie szkicu…</div>
+
+            {!canPublish && missingForPublish.length > 0 && (
+              <p className="mt-2 text-right text-[11px] text-ink-faint">
+                Uzupełnij {missingForPublish.join(" i ")}, żeby opublikować.
+              </p>
+            )}
+            {publishError && (
+              <p className="mt-2 text-right text-[12px] font-bold text-terracotta">{publishError}</p>
+            )}
+            {loaded && saving && !publishError && (
+              <div className="mt-2 text-right text-[11px] text-ink-faint">Zapisywanie…</div>
             )}
           </div>
         </div>
@@ -469,7 +653,11 @@ export function SellWizard() {
             <div className="max-w-[300px] overflow-hidden rounded-card border border-line bg-card shadow-card">
               <div
                 className="relative h-[150px]"
-                style={{ background: `linear-gradient(135deg, ${gradFrom}, ${gradTo})` }}
+                style={
+                  coverPhoto
+                    ? { backgroundImage: `url(${coverPhoto})`, backgroundSize: "cover", backgroundPosition: "center" }
+                    : { background: `linear-gradient(135deg, ${gradFrom}, ${gradTo})` }
+                }
               >
                 {avm && (
                   <span className="absolute left-2.5 top-2.5 rounded-pill bg-white px-2.5 py-1 text-[10.5px] font-bold text-bottle">
