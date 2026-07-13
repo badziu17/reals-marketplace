@@ -214,6 +214,25 @@ export function SearchClient({ initialFilters, initialSelectedId }: SearchClient
     setCompareOpen(true);
   }
 
+  async function handleContact() {
+    if (!selectedId) return;
+    try {
+      const res = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId: selectedId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error ?? "Nie udało się rozpocząć rozmowy.");
+        return;
+      }
+      router.push(`/messages?c=${data.conversationId}`);
+    } catch {
+      showToast("Nie udało się połączyć z serwerem.");
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <div ref={filterBarWrapRef}>
@@ -248,7 +267,7 @@ export function SearchClient({ initialFilters, initialSelectedId }: SearchClient
         onToggleFav={toggleFav}
         onClose={closeDetail}
         onBookViewing={() => setViewingOpen(true)}
-        onContact={() => showToast("Wiadomości pojawią się w iteracji 13 ✨")}
+        onContact={handleContact}
       />
 
       <ViewingPickerModal

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDevice } from "@/lib/useDevice";
 import {
   IconHeart,
@@ -16,8 +16,7 @@ import {
   IconX,
 } from "@/components/ui/icons";
 
-// Liczba nieprzeczytanych wiadomości — w iteracji 13 przyjdzie z API/realtime.
-const UNREAD_MESSAGES = 2;
+const UNREAD_POLL_MS = 10_000;
 
 const NAV_LINKS = [
   { href: "/", label: "Odkrywaj" },
@@ -33,6 +32,37 @@ export function Chrome() {
   const { device, toggle, mounted } = useDevice();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // Liczba nieprzeczytanych wiadomości (iteracja 13) — sumowana z
+  // /api/conversations, odpytywana lekko rzadziej niż na samej stronie
+  // /messages, bo tu to tylko odznaka w headerze.
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  useEffect(() => {
+    if (!session?.user) return;
+    let cancelled = false;
+    function poll() {
+      fetch("/api/conversations")
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          type ConvSummary = { unreadCount: number };
+          const total = (d.conversations ?? []).reduce(
+            (sum: number, c: ConvSummary) => sum + c.unreadCount,
+            0
+          );
+          setUnreadMessages(total);
+        })
+        .catch(() => {});
+    }
+    poll();
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") poll();
+    }, UNREAD_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [session?.user]);
 
   // Aktywna trasa — "/" tylko dokładne dopasowanie, reszta prefix
   function isActive(href: string) {
@@ -108,9 +138,9 @@ export function Chrome() {
             className="relative flex h-10 w-10 items-center justify-center rounded-pill text-ink-secondary transition hover:border hover:border-terracotta hover:text-terracotta"
           >
             <IconMessage />
-            {UNREAD_MESSAGES > 0 && (
+            {unreadMessages > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-terracotta font-mono text-[9px] font-bold text-white">
-                {UNREAD_MESSAGES}
+                {unreadMessages > 9 ? "9+" : unreadMessages}
               </span>
             )}
           </Link>

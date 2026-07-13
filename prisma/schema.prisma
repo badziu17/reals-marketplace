@@ -196,9 +196,10 @@ model Conversation {
 }
 
 model ConversationParticipant {
-  id             String @id @default(cuid())
+  id             String    @id @default(cuid())
   conversationId String
   userId         String
+  lastReadAt     DateTime? // iteracja 13 — do liczenia nieprzeczytanych
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -206,12 +207,19 @@ model ConversationParticipant {
   @@unique([conversationId, userId])
 }
 
+enum MessageKind {
+  TEXT
+  VIEWING // propozycja terminu oglądania
+  ATTACHMENT // zdjęcie jako data URL w body (patrz imageCompress.ts)
+}
+
 model Message {
-  id             String   @id @default(cuid())
+  id             String      @id @default(cuid())
   conversationId String
   senderId       String
   body           String
-  createdAt      DateTime @default(now())
+  kind           MessageKind @default(TEXT)
+  createdAt      DateTime    @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User         @relation(fields: [senderId], references: [id])
