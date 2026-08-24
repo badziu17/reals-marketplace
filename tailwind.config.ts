@@ -12,7 +12,11 @@ const config: Config = {
     extend: {
       colors: {
         terracotta: {
-          DEFAULT: "#C8553D", // primary / brand
+          // Iteracja 14 (WCAG 2.2 AA): #C8553D → #be4d36. Zmiana minimalna,
+          // wizualnie prawie niezauważalna, ale przywraca ≥4.5:1 kontrastu
+          // dla białego tekstu na przyciskach i dla terracotty użytej jako
+          // kolor tekstu na tle bg-app/card (oryginał: 4.05–4.35, poniżej progu AA).
+          DEFAULT: "#be4d36", // primary / brand
           hover: "#A8432E",
           dark: "#9e3f2c",
         },
@@ -31,8 +35,17 @@ const config: Config = {
           DEFAULT: "#33271D", // primary text — headings, prices
           secondary: "#5c4d3f", // labels, nav
           muted: "#7a6c5d",
-          faint: "#a8957f",
-          placeholder: "#b09a86",
+          // Iteracja 14 (WCAG 2.2 AA): #a8957f → #816e58. Oryginał dawał tylko
+          // 2.5–2.9:1 kontrastu wszędzie, gdzie faktycznie się go używa
+          // (znaczniki czasu, drobne podpisy) — dużo poniżej progu 4.5:1.
+          // UWAGA: to zbliża "faint" wizualnie do "muted" bardziej niż by się
+          // chciało z czysto estetycznego punktu widzenia — paleta ciepłych
+          // brązów na kremowym tle ma naturalną granicę, ile odrębnych,
+          // czytelnych odcieni się w niej zmieści. Na tle chip-warm nadal
+          // wychodzi tylko ~4.16:1 (blisko, nie idealnie) — pojedyncze użycia
+          // na tym tle warto przejrzeć osobno, nie tylko ufać temu tokenowi.
+          faint: "#816e58",
+          placeholder: "#b09a86", // celowo NIE zmienione — WCAG nie wymaga 4.5:1 dla samego placeholdera (to podpowiedź, nie właściwa etykieta pola)
         },
         line: {
           DEFAULT: "#ede1d2",

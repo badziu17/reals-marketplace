@@ -171,7 +171,7 @@ export function FilterBar({
         <select
           value={filters.sort}
           onChange={(e) => patch({ sort: e.target.value as SortOption })}
-          className="cursor-pointer rounded-pill border border-line bg-card px-[11px] py-2 text-[13px] text-ink-secondary outline-none"
+          className="cursor-pointer rounded-pill border border-line bg-card px-[11px] py-2 text-[13px] text-ink-secondary outline-none focus:border-terracotta/60"
         >
           <option value="foryou">Dla Ciebie</option>
           <option value="price_asc">Cena: od najniższej</option>

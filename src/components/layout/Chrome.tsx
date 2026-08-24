@@ -11,6 +11,7 @@ import {
   IconMonitor,
   IconSmartphone,
   IconUser,
+  IconSettings,
   IconLogOut,
   IconMenu,
   IconX,
@@ -110,6 +111,8 @@ export function Chrome() {
               <button
                 onClick={() => toggle("desktop")}
                 title="Widok desktop"
+                aria-label="Przełącz na widok desktop"
+                aria-pressed={device === "desktop"}
                 className={`flex h-8 w-8 items-center justify-center rounded-pill transition ${
                   device === "desktop"
                     ? "bg-card shadow-sm text-ink"
@@ -121,6 +124,8 @@ export function Chrome() {
               <button
                 onClick={() => toggle("mobile")}
                 title="Widok telefon"
+                aria-label="Przełącz na widok telefon"
+                aria-pressed={device === "mobile"}
                 className={`flex h-8 w-8 items-center justify-center rounded-pill transition ${
                   device === "mobile"
                     ? "bg-card shadow-sm text-ink"
@@ -159,6 +164,9 @@ export function Chrome() {
             <div className="relative">
               <button
                 onClick={() => setUserMenuOpen((o) => !o)}
+                aria-label="Menu użytkownika"
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
                 className="flex h-10 w-10 items-center justify-center rounded-pill border border-line bg-card text-ink-secondary transition hover:border-terracotta hover:text-terracotta"
               >
                 {session.user?.image ? (
@@ -193,6 +201,14 @@ export function Chrome() {
                       <IconHeart className="h-4 w-4" />
                       Zapisane oferty
                     </Link>
+                    <Link
+                      href="/account"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-ink-secondary hover:bg-chip-warm"
+                    >
+                      <IconSettings className="h-4 w-4" />
+                      Ustawienia konta
+                    </Link>
                     <button
                       onClick={() => { signOut({ callbackUrl: "/" }); setUserMenuOpen(false); }}
                       className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-ink-secondary hover:bg-chip-warm"
@@ -217,6 +233,8 @@ export function Chrome() {
           <button
             className="flex h-10 w-10 items-center justify-center rounded-pill border border-line md:hidden"
             onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "Zamknij menu" : "Otwórz menu"}
+            aria-expanded={menuOpen}
           >
             {menuOpen ? <IconX /> : <IconMenu />}
           </button>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Hanken_Grotesk, Space_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { CookieBanner } from "@/components/legal/CookieBanner";
 import "@/styles/globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -39,6 +40,7 @@ export default function RootLayout({
     <html lang="pl" className={`${bricolage.variable} ${hanken.variable} ${spaceMono.variable}`}>
       <body className="app-shell">
         <AuthProvider>{children}</AuthProvider>
+        <CookieBanner />
       </body>
     </html>
   );

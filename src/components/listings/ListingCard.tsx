@@ -122,6 +122,8 @@ export function ListingCard({
         {onFav && (
           <button
             onClick={(e) => { e.stopPropagation(); onFav(listing.id); }}
+            aria-label={isFaved ? "Usuń z ulubionych" : "Dodaj do ulubionych"}
+            aria-pressed={isFaved}
             className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-card/80 text-ink-muted transition hover:text-terracotta"
           >
             <IconHeart filled={isFaved} className="h-4 w-4" />

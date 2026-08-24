@@ -34,13 +34,17 @@ enum City {
 // --- Auth (iteracja 1) -------------------------------------------------
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
+  id            String    @id @default(cuid())
+  email         String    @unique
   passwordHash  String? // null dla kont OAuth-only
   name          String?
   image         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? // iteracja 14 (RODO) — konto zanonimizowane, nie usuwane fizycznie
+  // (Message.sender i Listing.owner odwołują się do tego wiersza — hard-delete
+  // złamałby integralność wątków innych uczestników; anonimizacja usuwa dane
+  // osobowe bez tego problemu)
 
   accounts       Account[]
   sessions       Session[]
